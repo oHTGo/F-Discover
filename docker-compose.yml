@@ -1,0 +1,9 @@
+version: '3.9'
+services: 
+    api:
+        container_name: API_F-Discover
+        build: .
+        env_file: .env
+        ports:
+            - ${PORT}:${PORT}
+        working_dir: /app/
