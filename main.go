@@ -1,6 +1,8 @@
 package main
 
 import (
+	"f-discover/middlewares"
+	"f-discover/user"
 	"log"
 
 	"github.com/joho/godotenv"
@@ -16,6 +18,13 @@ func main() {
 	app := iris.New()
 	app.Get("/", helloWorldPoint)
 
+	userRouter := app.Party("user")
+	{
+		userRouter.Get("/", middlewares.SetAuthentication(), user.Get)
+		userRouter.Get("/{id}", user.GetID)
+		userRouter.Post("/{id}/follow", middlewares.SetAuthentication(), user.Follow)
+		userRouter.Post("/{id}/unfollow", middlewares.SetAuthentication(), user.Unfollow)
+	}
 	app.Listen(":" + envConfig["PORT"])
 }
 
