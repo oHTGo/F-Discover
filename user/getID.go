@@ -13,10 +13,6 @@ func GetID(ctx iris.Context) {
 	usersCollection := firebase.GetInstance().StoreClient.Collection("users")
 
 	userID := ctx.Params().Get("id")
-	// if err := ctx.ReadParams(&param); err != nil {
-	// 	ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "User ID is invalid"})
-	// 	return
-	// }
 
 	dsnap, err := usersCollection.Doc(userID).Get(context.Background())
 	if err != nil {

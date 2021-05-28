@@ -16,11 +16,6 @@ func Unfollow(ctx iris.Context) {
 	userID := ctx.Params().Get("id")
 	currentUserID := ctx.Values().GetString("id")
 
-	// if err := ctx.ReadParams(&user); err != nil {
-	// 	ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "User ID is invalid"})
-	// 	return
-	// }
-
 	if currentUserID == userID {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{Message: "Self-following is not allowed"})
 		return
