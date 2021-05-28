@@ -21,6 +21,7 @@ func main() {
 	userRouter := app.Party("user")
 	{
 		userRouter.Get("/", middlewares.SetAuthentication(), user.Get)
+		userRouter.Put("/", middlewares.SetAuthentication(), user.UpdateProfile)
 		userRouter.Get("/{id}", user.GetID)
 		userRouter.Post("/{id}/follow", middlewares.SetAuthentication(), user.Follow)
 		userRouter.Post("/{id}/unfollow", middlewares.SetAuthentication(), user.Unfollow)
