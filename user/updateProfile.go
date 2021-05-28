@@ -10,7 +10,7 @@ import (
 	"github.com/kataras/iris/v12"
 )
 
-type body struct {
+type ProfileBody struct {
 	Name string `json:"name"`
 }
 
@@ -19,7 +19,7 @@ func UpdateProfile(ctx iris.Context) {
 
 	id := ctx.Values().GetString("id")
 
-	var body body
+	var body ProfileBody
 	if err := ctx.ReadBody(&body); err != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{Message: "Body is bad request"})
 		return
