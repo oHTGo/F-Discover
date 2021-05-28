@@ -5,7 +5,6 @@ import (
 	"f-discover/firebase"
 	"f-discover/interfaces"
 	"f-discover/models"
-	"f-discover/params"
 
 	"cloud.google.com/go/firestore"
 	"github.com/kataras/iris/v12"
@@ -14,20 +13,20 @@ import (
 func Follow(ctx iris.Context) {
 	usersCollection := firebase.GetInstance().StoreClient.Collection("users")
 
-	var user params.UserID
+	userID := ctx.Params().Get("id")
 	currentUserID := ctx.Values().GetString("id")
 
-	if err := ctx.ReadParams(&user); err != nil {
-		ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "User ID is invalid"})
-		return
-	}
+	// if err := ctx.ReadParams(&user); err != nil {
+	// 	ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "User ID is invalid"})
+	// 	return
+	// }
 
-	if currentUserID == user.ID {
+	if currentUserID == userID {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{Message: "Self-following is not allowed"})
 		return
 	}
 
-	dsnapUser, err := usersCollection.Doc(user.ID).Get(context.Background())
+	dsnapUser, err := usersCollection.Doc(userID).Get(context.Background())
 	if err != nil {
 		ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "User is inexistent"})
 		return
@@ -44,7 +43,7 @@ func Follow(ctx iris.Context) {
 
 	currentUserRef := usersCollection.Doc(currentUserID)
 
-	_, _ = usersCollection.Doc(user.ID).Update(context.Background(), []firestore.Update{
+	_, _ = usersCollection.Doc(userID).Update(context.Background(), []firestore.Update{
 		{
 			Path:  "followers." + currentUserID,
 			Value: currentUserRef,
@@ -53,7 +52,7 @@ func Follow(ctx iris.Context) {
 
 	_, _ = usersCollection.Doc(currentUserID).Update(context.Background(), []firestore.Update{
 		{
-			Path:  "following." + user.ID,
+			Path:  "following." + userID,
 			Value: dsnapUser.Ref,
 		},
 	})

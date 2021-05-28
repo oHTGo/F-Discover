@@ -5,7 +5,6 @@ import (
 	"f-discover/firebase"
 	"f-discover/interfaces"
 	"f-discover/models"
-	"f-discover/params"
 
 	"github.com/kataras/iris/v12"
 )
@@ -13,13 +12,13 @@ import (
 func GetID(ctx iris.Context) {
 	usersCollection := firebase.GetInstance().StoreClient.Collection("users")
 
-	var param params.UserID
-	if err := ctx.ReadParams(&param); err != nil {
-		ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "User ID is invalid"})
-		return
-	}
+	userID := ctx.Params().Get("id")
+	// if err := ctx.ReadParams(&param); err != nil {
+	// 	ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "User ID is invalid"})
+	// 	return
+	// }
 
-	dsnap, err := usersCollection.Doc(param.ID).Get(context.Background())
+	dsnap, err := usersCollection.Doc(userID).Get(context.Background())
 	if err != nil {
 		ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "User is inexistent"})
 		return
