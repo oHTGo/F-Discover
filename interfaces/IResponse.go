@@ -12,3 +12,8 @@ type ISuccessNoData struct {
 type IFail struct {
 	Message string `json:"message"`
 }
+
+type IFailWithErrors struct {
+	Message string      `json:"message"`
+	Errors  interface{} `json:"errors"`
+}
