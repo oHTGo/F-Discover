@@ -1,7 +1,7 @@
 package user
 
 import (
-	"context"
+	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/services"
 
@@ -32,7 +32,7 @@ func UpdateProfile(ctx iris.Context) {
 		return
 	}
 
-	_, _ = usersCollection.Doc(id).Update(context.Background(), []firestore.Update{
+	_, _ = usersCollection.Doc(id).Update(instance.CtxBackground, []firestore.Update{
 		{
 			Path:  "name",
 			Value: string(body.Name),

@@ -1,7 +1,7 @@
 package user
 
 import (
-	"context"
+	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/models"
 	"f-discover/services"
@@ -21,7 +21,7 @@ func Unfollow(ctx iris.Context) {
 		return
 	}
 
-	dsnapUser, err := usersCollection.Doc(userID).Get(context.Background())
+	dsnapUser, err := usersCollection.Doc(userID).Get(instance.CtxBackground)
 	if err != nil {
 		ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "User is inexistent"})
 		return
@@ -36,14 +36,14 @@ func Unfollow(ctx iris.Context) {
 		return
 	}
 
-	_, _ = usersCollection.Doc(userID).Update(context.Background(), []firestore.Update{
+	_, _ = usersCollection.Doc(userID).Update(instance.CtxBackground, []firestore.Update{
 		{
 			Path:  "followers." + currentUserID,
 			Value: firestore.Delete,
 		},
 	})
 
-	_, _ = usersCollection.Doc(currentUserID).Update(context.Background(), []firestore.Update{
+	_, _ = usersCollection.Doc(currentUserID).Update(instance.CtxBackground, []firestore.Update{
 		{
 			Path:  "following." + userID,
 			Value: firestore.Delete,

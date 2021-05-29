@@ -1,8 +1,8 @@
 package user
 
 import (
-	"context"
 	"f-discover/helpers"
+	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/services"
 	"path/filepath"
@@ -47,7 +47,7 @@ func UpdateAvatar(ctx iris.Context) {
 	}
 
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
-	_, _ = usersCollection.Doc(id).Update(context.Background(), []firestore.Update{
+	_, _ = usersCollection.Doc(id).Update(instance.CtxBackground, []firestore.Update{
 		{
 			Path:  "avatarUrl",
 			Value: url,

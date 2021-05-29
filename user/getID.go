@@ -1,7 +1,7 @@
 package user
 
 import (
-	"context"
+	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/models"
 	"f-discover/services"
@@ -15,7 +15,7 @@ func GetID(ctx iris.Context) {
 
 	userID := ctx.Params().Get("id")
 
-	dsnap, err := usersCollection.Doc(userID).Get(context.Background())
+	dsnap, err := usersCollection.Doc(userID).Get(instance.CtxBackground)
 	if err != nil {
 		ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "User is inexistent"})
 		return

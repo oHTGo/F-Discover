@@ -1,7 +1,7 @@
 package user
 
 import (
-	"context"
+	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/models"
 	"f-discover/services"
@@ -15,7 +15,7 @@ func Get(ctx iris.Context) {
 
 	id := ctx.Values().GetString("id")
 
-	dsnap, _ := usersCollection.Doc(id).Get(context.Background())
+	dsnap, _ := usersCollection.Doc(id).Get(instance.CtxBackground)
 	var user models.User
 	dsnap.DataTo(&user)
 
