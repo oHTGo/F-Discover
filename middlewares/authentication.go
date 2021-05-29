@@ -1,13 +1,13 @@
 package middlewares
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
+	"f-discover/instance"
 	"f-discover/models"
 	"f-discover/services"
 
@@ -52,14 +52,14 @@ func SetAuthentication() iris.Handler {
 			return
 		}
 
-		_, err := usersCollection.Doc(id).Get(context.Background())
+		_, err := usersCollection.Doc(id).Get(instance.CtxBackground)
 		if err != nil {
 			user := models.User{
 				ID:        id,
 				Name:      name,
 				AvatarUrl: avatarUrl,
 			}
-			usersCollection.Doc(id).Set(context.Background(), user)
+			usersCollection.Doc(id).Set(instance.CtxBackground, user)
 		}
 
 		ctx.Values().Set("id", id)
@@ -78,7 +78,7 @@ func checkFieldMapFirebase(payload map[string]interface{}, key string, valueDefa
 
 func verifyTokenFirebase(token string) (string, string, string, error) {
 	authClient := services.GetInstance().AuthClient
-	payload, err := authClient.VerifyIDToken(context.Background(), token)
+	payload, err := authClient.VerifyIDToken(instance.CtxBackground, token)
 	if err != nil {
 		return "", "", "", err
 	}

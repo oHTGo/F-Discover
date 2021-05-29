@@ -1,7 +1,7 @@
 package services
 
 import (
-	"context"
+	"f-discover/instance"
 	"log"
 	"sync"
 
@@ -15,7 +15,6 @@ import (
 )
 
 var once sync.Once
-var ctx = context.Background()
 
 type single struct {
 	FirebaseApp   *firebase.App
@@ -43,7 +42,7 @@ func GetInstance() *single {
 
 func initialize() *firebase.App {
 	opt := option.WithCredentialsFile("serviceAccountKey.json")
-	app, err := firebase.NewApp(ctx, nil, opt)
+	app, err := firebase.NewApp(instance.CtxBackground, nil, opt)
 	if err != nil {
 		log.Fatalf("Error initializing app: %v\n", err)
 	}
@@ -52,7 +51,7 @@ func initialize() *firebase.App {
 }
 
 func initialFirestore(app *firebase.App) *firestore.Client {
-	client, err := app.Firestore(ctx)
+	client, err := app.Firestore(instance.CtxBackground)
 	if err != nil {
 		log.Fatalf("Error initializing firestore: %v\n", err)
 	}
@@ -61,7 +60,7 @@ func initialFirestore(app *firebase.App) *firestore.Client {
 }
 
 func initialAuth(app *firebase.App) *auth.Client {
-	client, err := app.Auth(ctx)
+	client, err := app.Auth(instance.CtxBackground)
 	if err != nil {
 		log.Fatalf("Error initializing auth: %v\n", err)
 	}
@@ -72,7 +71,7 @@ func initialAuth(app *firebase.App) *auth.Client {
 func initialStorage() (*storage.Client, *storage.BucketHandle) {
 	envConfig, _ := godotenv.Read(".env")
 	opt := option.WithCredentialsFile("serviceAccountKey.json")
-	client, err := storage.NewClient(ctx, opt)
+	client, err := storage.NewClient(instance.CtxBackground, opt)
 	if err != nil {
 		log.Fatalf("Error initializing storage: %v\n", err)
 	}
