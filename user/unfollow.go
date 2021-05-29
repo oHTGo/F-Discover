@@ -2,16 +2,16 @@ package user
 
 import (
 	"context"
-	"f-discover/firebase"
 	"f-discover/interfaces"
 	"f-discover/models"
+	"f-discover/services"
 
 	"cloud.google.com/go/firestore"
 	"github.com/kataras/iris/v12"
 )
 
 func Unfollow(ctx iris.Context) {
-	usersCollection := firebase.GetInstance().StoreClient.Collection("users")
+	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
 	userID := ctx.Params().Get("id")
 	currentUserID := ctx.Values().GetString("id")

@@ -2,8 +2,8 @@ package user
 
 import (
 	"context"
-	"f-discover/firebase"
 	"f-discover/interfaces"
+	"f-discover/services"
 
 	"cloud.google.com/go/firestore"
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -15,7 +15,7 @@ type ProfileBody struct {
 }
 
 func UpdateProfile(ctx iris.Context) {
-	usersCollection := firebase.GetInstance().StoreClient.Collection("users")
+	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
 	id := ctx.Values().GetString("id")
 

@@ -1,4 +1,4 @@
-package firebase
+package services
 
 import (
 	"context"
@@ -6,17 +6,23 @@ import (
 	"sync"
 
 	"cloud.google.com/go/firestore"
+	"cloud.google.com/go/storage"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
+	"github.com/joho/godotenv"
+
 	"google.golang.org/api/option"
 )
 
 var once sync.Once
+var ctx = context.Background()
 
 type single struct {
-	FirebaseApp *firebase.App
-	AuthClient  *auth.Client
-	StoreClient *firestore.Client
+	FirebaseApp   *firebase.App
+	AuthClient    *auth.Client
+	StoreClient   *firestore.Client
+	StorageClient *storage.Client
+	StorageBucket *storage.BucketHandle
 }
 
 var singleInstance *single
@@ -29,6 +35,7 @@ func GetInstance() *single {
 				singleInstance.FirebaseApp = initialize()
 				singleInstance.AuthClient = initialAuth(singleInstance.FirebaseApp)
 				singleInstance.StoreClient = initialFirestore(singleInstance.FirebaseApp)
+				singleInstance.StorageClient, singleInstance.StorageBucket = initialStorage()
 			})
 	}
 	return singleInstance
@@ -36,7 +43,7 @@ func GetInstance() *single {
 
 func initialize() *firebase.App {
 	opt := option.WithCredentialsFile("serviceAccountKey.json")
-	app, err := firebase.NewApp(context.Background(), nil, opt)
+	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Fatalf("Error initializing app: %v\n", err)
 	}
@@ -45,7 +52,7 @@ func initialize() *firebase.App {
 }
 
 func initialFirestore(app *firebase.App) *firestore.Client {
-	client, err := app.Firestore(context.Background())
+	client, err := app.Firestore(ctx)
 	if err != nil {
 		log.Fatalf("Error initializing firestore: %v\n", err)
 	}
@@ -54,10 +61,21 @@ func initialFirestore(app *firebase.App) *firestore.Client {
 }
 
 func initialAuth(app *firebase.App) *auth.Client {
-	client, err := app.Auth(context.Background())
+	client, err := app.Auth(ctx)
 	if err != nil {
 		log.Fatalf("Error initializing auth: %v\n", err)
 	}
 
 	return client
+}
+
+func initialStorage() (*storage.Client, *storage.BucketHandle) {
+	envConfig, _ := godotenv.Read(".env")
+	opt := option.WithCredentialsFile("serviceAccountKey.json")
+	client, err := storage.NewClient(ctx, opt)
+	if err != nil {
+		log.Fatalf("Error initializing storage: %v\n", err)
+	}
+
+	return client, client.Bucket(envConfig["STORAGE_BUCKET"])
 }

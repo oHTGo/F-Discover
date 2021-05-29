@@ -1,0 +1,63 @@
+package user
+
+import (
+	"context"
+	"f-discover/helpers"
+	"f-discover/interfaces"
+	"f-discover/services"
+	"path/filepath"
+
+	"cloud.google.com/go/firestore"
+	"github.com/kataras/iris/v12"
+)
+
+type NewAvatarUrl struct {
+	AvatarUrl string `json:"avatarUrl"`
+}
+
+func UpdateAvatar(ctx iris.Context) {
+	helpers.CreateDir("uploads")
+
+	id := ctx.Values().GetString("id")
+
+	_, fileHeader, err := ctx.FormFile("avatar")
+	if err != nil {
+		ctx.StopWithError(iris.StatusBadRequest, err)
+		return
+	}
+
+	// Upload the file to specific destination.
+	newNameFile := id + filepath.Ext(fileHeader.Filename)
+	dest := filepath.Join("./uploads", newNameFile)
+
+	_, err = ctx.SaveFormFile(fileHeader, dest)
+	if err != nil {
+		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
+			Message: "Upload avatar failed",
+		})
+		return
+	}
+
+	url, err := helpers.UploadFile(dest, "avatar/"+newNameFile)
+	if err != nil {
+		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
+			Message: "Upload avatar failed",
+		})
+		return
+	}
+
+	usersCollection := services.GetInstance().StoreClient.Collection("users")
+	_, _ = usersCollection.Doc(id).Update(context.Background(), []firestore.Update{
+		{
+			Path:  "avatarUrl",
+			Value: url,
+		},
+	})
+
+	ctx.JSON(interfaces.ISuccess{
+		Message: "Update avatar successfully",
+		Data: NewAvatarUrl{
+			AvatarUrl: url,
+		},
+	})
+}

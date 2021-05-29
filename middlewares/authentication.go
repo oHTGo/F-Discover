@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
-	"f-discover/firebase"
 	"f-discover/models"
+	"f-discover/services"
 
 	"github.com/kataras/iris/v12"
 )
@@ -20,7 +20,7 @@ var avatarUrl string
 
 func SetAuthentication() iris.Handler {
 	return func(ctx iris.Context) {
-		usersCollection := firebase.GetInstance().StoreClient.Collection("users")
+		usersCollection := services.GetInstance().StoreClient.Collection("users")
 
 		authorization := ctx.GetHeader("authorization")
 		typeOfToken := strings.Split(authorization, " ")[0]
@@ -77,7 +77,7 @@ func checkFieldMapFirebase(payload map[string]interface{}, key string, valueDefa
 }
 
 func verifyTokenFirebase(token string) (string, string, string, error) {
-	authClient := firebase.GetInstance().AuthClient
+	authClient := services.GetInstance().AuthClient
 	payload, err := authClient.VerifyIDToken(context.Background(), token)
 	if err != nil {
 		return "", "", "", err
