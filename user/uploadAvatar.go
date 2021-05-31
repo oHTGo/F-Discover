@@ -15,14 +15,16 @@ type NewAvatarUrl struct {
 	AvatarUrl string `json:"avatarUrl"`
 }
 
-func UpdateAvatar(ctx iris.Context) {
+func UploadAvatar(ctx iris.Context) {
 	helpers.CreateDir("uploads")
 
 	id := ctx.Values().GetString("id")
 
 	_, fileHeader, err := ctx.FormFile("avatar")
 	if err != nil {
-		ctx.StopWithError(iris.StatusBadRequest, err)
+		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
+			Message: "Upload avatar failed",
+		})
 		return
 	}
 
@@ -55,7 +57,7 @@ func UpdateAvatar(ctx iris.Context) {
 	})
 
 	ctx.JSON(interfaces.ISuccess{
-		Message: "Update avatar successfully",
+		Message: "Upload avatar successfully",
 		Data: NewAvatarUrl{
 			AvatarUrl: url,
 		},

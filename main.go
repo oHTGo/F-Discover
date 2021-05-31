@@ -22,7 +22,7 @@ func main() {
 	{
 		userRouter.Get("/", middlewares.SetAuthentication(), user.Get)
 		userRouter.Put("/", middlewares.SetAuthentication(), user.UpdateProfile)
-		userRouter.Post("/upload-avatar", middlewares.SetAuthentication(), user.UpdateAvatar)
+		userRouter.Post("/upload-avatar", middlewares.SetAuthentication(), user.UploadAvatar)
 		userRouter.Get("/{id}", user.GetID)
 		userRouter.Post("/{id}/follow", middlewares.SetAuthentication(), user.Follow)
 		userRouter.Post("/{id}/unfollow", middlewares.SetAuthentication(), user.Unfollow)
