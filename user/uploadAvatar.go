@@ -57,7 +57,7 @@ func UploadAvatar(ctx iris.Context) {
 	})
 
 	ctx.JSON(interfaces.ISuccess{
-		Message: "Upload avatar successfully",
+		Message: "Success",
 		Data: NewAvatarUrl{
 			AvatarUrl: url,
 		},

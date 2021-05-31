@@ -32,7 +32,7 @@ func GetID(ctx iris.Context) {
 	}
 
 	ctx.JSON(interfaces.ISuccess{
-		Message: "Get user successfully",
+		Message: "Success",
 		Data:    res,
 	})
 }

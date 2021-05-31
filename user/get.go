@@ -15,7 +15,12 @@ func Get(ctx iris.Context) {
 
 	id := ctx.Values().GetString("id")
 
-	dsnap, _ := usersCollection.Doc(id).Get(instance.CtxBackground)
+	dsnap, err := usersCollection.Doc(id).Get(instance.CtxBackground)
+	if err != nil {
+		ctx.StopWithJSON(iris.StatusInternalServerError, interfaces.IFail{Message: "Get profile failed"})
+		return
+	}
+
 	var user models.User
 	dsnap.DataTo(&user)
 
@@ -28,7 +33,7 @@ func Get(ctx iris.Context) {
 	}
 
 	ctx.JSON(interfaces.ISuccess{
-		Message: "Get profile successfully",
+		Message: "Success",
 		Data:    res,
 	})
 }
