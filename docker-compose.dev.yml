@@ -1,0 +1,14 @@
+version: '3.9'
+services:
+    api:
+        volumes:
+            - ./:/app/
+    swagger-ui:
+        image: swaggerapi/swagger-ui
+        container_name: Docs_F-Discover
+        ports:
+            - "80:8080"
+        volumes:
+        - ./docs.yaml:/docs.yaml
+        environment:
+            SWAGGER_JSON: /docs.yaml
