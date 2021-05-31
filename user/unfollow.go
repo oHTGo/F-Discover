@@ -51,6 +51,6 @@ func Unfollow(ctx iris.Context) {
 	})
 
 	ctx.JSON(interfaces.ISuccessNoData{
-		Message: "Unfollow successfully",
+		Message: "Success",
 	})
 }

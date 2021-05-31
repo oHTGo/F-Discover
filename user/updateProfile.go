@@ -44,7 +44,7 @@ func UpdateProfile(ctx iris.Context) {
 	})
 
 	ctx.JSON(interfaces.ISuccess{
-		Message: "Update profile successfully",
+		Message: "Success",
 		Data: NewProfile{
 			Name: string(body.Name),
 		},

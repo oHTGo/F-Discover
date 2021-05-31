@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"f-discover/instance"
+	"f-discover/interfaces"
 	"f-discover/models"
 	"f-discover/services"
 
@@ -26,13 +27,13 @@ func SetAuthentication() iris.Handler {
 		typeOfToken := strings.Split(authorization, " ")[0]
 
 		if typeOfToken == "" || typeOfToken != "Bearer" {
-			ctx.StopWithJSON(iris.StatusUnauthorized, map[string]string{"error": "Token is not a valid token"})
+			ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Token is not a valid token"})
 			return
 		}
 
 		token := strings.Split(authorization, " ")[1]
 		if token == "" {
-			ctx.StopWithJSON(iris.StatusUnauthorized, map[string]string{"error": "Token is not a valid token"})
+			ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Token is not a valid token"})
 			return
 		}
 
@@ -48,7 +49,7 @@ func SetAuthentication() iris.Handler {
 			name = nameZalo
 			avatarUrl = avatarUrlZalo
 		} else {
-			ctx.StopWithJSON(iris.StatusUnauthorized, map[string]string{"error": "Token not verified"})
+			ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Token not verified"})
 			return
 		}
 

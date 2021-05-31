@@ -1,0 +1,250 @@
+openapi: "3.0.0"
+info:
+  title: F-Discover API
+  version: "1.0"
+servers:
+  - url: http://localhost:5050/api
+tags:
+  - name: user
+    description: User endpoint
+paths:
+  /user:
+    get:
+      security:
+        - BearerToken: []
+      description: Get profile of current user
+      tags:
+        - "user"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                  message: Get profile failed
+    put:
+      security:
+        - BearerToken: []
+      description: Update profile
+      tags:
+        - "user"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Luong Gia Huy"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+                data:
+                  name: Luong Gia Huy
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Error"
+              examples:
+                ErrorParse:
+                  summary: Error parse JSON 
+                  value:
+                    message: Body is bad request
+                ErrorValidation:
+                  summary: Error validation body
+                  value:
+                    message: Have validation error
+                    errors:
+                      name: cannot be blank
+  /user/upload-avatar:
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - "user"
+      description: "Upload and update avatar"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+                data:
+                  avatarUrl: "https://abc.com/avatar/Pbv9kN0dN2V2CeEdKql5gLQaNqk1.jpg"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                  message: Upload avatar failed
+  /user/{id}:
+    get:
+      description: Get user by ID
+      tags:
+        - "user"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          example: "Pbv9kN0dN2V2CeEdKql5gLQaNqk1"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                  message: User is inexistent
+  /user/{id}/follow:
+    post:
+      security:
+        - BearerToken: []
+      description: Follow user by ID
+      tags:
+        - "user"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          example: "Pbv9kN0dN2V2CeEdKql5gLQaNqk1"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                  message: Current user has followed this user
+  /user/{id}/unfollow:
+    post:
+      security:
+        - BearerToken: []
+      description: Unfollow user by ID
+      tags:
+        - "user"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          example: "Pbv9kN0dN2V2CeEdKql5gLQaNqk1"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                  message: Current user has not followed this user
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWTW
+  schemas:
+    Success:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Success"
+        data:
+          type: object
+      required:
+        - message
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+      required:
+        - message
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "Pbv9kN0dN2V2CeEdKql5gLQaNqk1"
+        name:
+          type: string
+          example: "Nguyen Nhat Huy"
+        avatarUrl:
+          type: string
+          example: "https://abc.com/avatar/Pbv9kN0dN2V2CeEdKql5gLQaNqk1.jpg"
+        following:
+          type: number
+          example: 10
+        followers:
+          type: number
+          example: 200

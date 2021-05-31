@@ -54,6 +54,6 @@ func Follow(ctx iris.Context) {
 	})
 
 	ctx.JSON(interfaces.ISuccessNoData{
-		Message: "Follow successfully",
+		Message: "Success",
 	})
 }
