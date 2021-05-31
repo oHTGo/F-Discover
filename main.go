@@ -5,6 +5,7 @@ import (
 	"f-discover/user"
 	"log"
 
+	"github.com/iris-contrib/middleware/cors"
 	"github.com/joho/godotenv"
 	"github.com/kataras/iris/v12"
 )
@@ -16,9 +17,19 @@ func main() {
 	}
 
 	app := iris.New()
-	app.Get("/", helloWorldPoint)
 
-	userRouter := app.Party("user")
+	crs := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders: []string{"*"},
+	})
+	app.UseRouter(crs)
+
+	api := app.Party("/api/")
+
+	api.Get("/", helloWorldPoint)
+
+	userRouter := api.Party("user")
 	{
 		userRouter.Get("/", middlewares.SetAuthentication(), user.Get)
 		userRouter.Put("/", middlewares.SetAuthentication(), user.UpdateProfile)
