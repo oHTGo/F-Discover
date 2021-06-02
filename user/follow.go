@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/models"
@@ -14,7 +15,7 @@ import (
 func Follow(ctx iris.Context) {
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
-	userID := ctx.Params().Get("id")
+	userID := helpers.GetCurrentUserID(ctx)
 	currentUserID := ctx.Values().GetString("id")
 
 	if currentUserID == userID {
