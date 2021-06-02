@@ -5,16 +5,51 @@ info:
 servers:
   - url: http://localhost:5050/api
 tags:
-  - name: user
+  - name: Authentication
+    description: Authentication endpoint
+  - name: User
     description: User endpoint
 paths:
+  /authentication:
+    post:
+      summary: Exchange token Firebase or Zalo
+      tags:
+        - "Authentication"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+                data:
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: error
+
   /user:
     get:
       security:
         - BearerToken: []
-      description: Get profile of current user
+      summary: Get profile of current user
       tags:
-        - "user"
+        - "User"
       responses:
         "200":
           description: OK
@@ -32,13 +67,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
-                  message: Get profile failed
+                message: Get profile failed
     put:
       security:
         - BearerToken: []
-      description: Update profile
+      summary: Update profile
       tags:
-        - "user"
+        - "User"
       requestBody:
         content:
           application/json:
@@ -68,7 +103,7 @@ paths:
                   - $ref: "#/components/schemas/Error"
               examples:
                 ErrorParse:
-                  summary: Error parse JSON 
+                  summary: Error parse JSON
                   value:
                     message: Body is bad request
                 ErrorValidation:
@@ -82,8 +117,8 @@ paths:
       security:
         - BearerToken: []
       tags:
-        - "user"
-      description: "Upload and update avatar"
+        - "User"
+      summary: "Upload and update avatar"
       requestBody:
         content:
           multipart/form-data:
@@ -111,12 +146,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
-                  message: Upload avatar failed
+                message: Upload avatar failed
   /user/{id}:
     get:
-      description: Get user by ID
+      security:
+        - BearerToken: []
+      summary: Get user by ID
       tags:
-        - "user"
+        - "User"
       parameters:
         - in: path
           name: id
@@ -141,14 +178,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
-                  message: User is inexistent
+                message: User is inexistent
   /user/{id}/follow:
     post:
       security:
         - BearerToken: []
-      description: Follow user by ID
+      summary: Follow user by ID
       tags:
-        - "user"
+        - "User"
       parameters:
         - in: path
           name: id
@@ -172,14 +209,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
-                  message: Current user has followed this user
+                message: Current user has followed this user
   /user/{id}/unfollow:
     post:
       security:
         - BearerToken: []
-      description: Unfollow user by ID
+      summary: Unfollow user by ID
       tags:
-        - "user"
+        - "User"
       parameters:
         - in: path
           name: id
@@ -203,7 +240,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
-                  message: Current user has not followed this user
+                message: Current user has not followed this user
 components:
   securitySchemes:
     BearerToken:
