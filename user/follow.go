@@ -15,8 +15,8 @@ import (
 func Follow(ctx iris.Context) {
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
-	userID := helpers.GetCurrentUserID(ctx)
-	currentUserID := ctx.Values().GetString("id")
+	userID := ctx.Params().Get("id")
+	currentUserID := helpers.GetCurrentUserID(ctx)
 
 	if currentUserID == userID {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{Message: "Self-following is not allowed"})
