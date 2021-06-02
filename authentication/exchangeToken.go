@@ -3,6 +3,7 @@ package authentication
 import (
 	"encoding/json"
 	"errors"
+	"f-discover/env"
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/models"
@@ -70,8 +71,7 @@ func ExchangeToken(ctx iris.Context) {
 		"exp": time.Now().Unix() + 60*60*24, //set expire time: 24 hours
 	})
 
-	secret := []byte("HTG")
-	jString, _ := j.SignedString(secret)
+	jString, _ := j.SignedString([]byte(env.Get().JWT_SECRET))
 
 	res := TokenResponse{
 		Token: jString,

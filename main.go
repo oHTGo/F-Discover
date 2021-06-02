@@ -2,20 +2,16 @@ package main
 
 import (
 	"f-discover/authentication"
+	"f-discover/env"
 	"f-discover/user"
-	"log"
 
 	"github.com/iris-contrib/middleware/cors"
 	"github.com/iris-contrib/middleware/jwt"
-	"github.com/joho/godotenv"
 	"github.com/kataras/iris/v12"
 )
 
 func main() {
-	envConfig, err := godotenv.Read(".env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	env.Get()
 
 	app := iris.New()
 
@@ -28,7 +24,7 @@ func main() {
 
 	j := jwt.New(jwt.Config{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return []byte(envConfig["JWT_SECRET"]), nil
+			return []byte(env.Get().JWT_SECRET), nil
 		},
 		SigningMethod: jwt.SigningMethodHS256,
 	})
@@ -51,5 +47,5 @@ func main() {
 		userRouter.Post("/{id}/follow", user.Follow)
 		userRouter.Post("/{id}/unfollow", user.Unfollow)
 	}
-	app.Listen(":" + envConfig["PORT"])
+	app.Listen(":" + env.Get().PORT)
 }
