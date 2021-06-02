@@ -1,6 +1,7 @@
 package user
 
 import (
+	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/services"
@@ -21,7 +22,7 @@ type NewProfile struct {
 func UpdateProfile(ctx iris.Context) {
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
-	id := ctx.Values().GetString("id")
+	id := helpers.GetCurrentUserID(ctx)
 
 	var body UpdateProfileDTO
 	if err := ctx.ReadBody(&body); err != nil {

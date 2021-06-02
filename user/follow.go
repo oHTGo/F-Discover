@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/models"
@@ -15,7 +16,7 @@ func Follow(ctx iris.Context) {
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
 	userID := ctx.Params().Get("id")
-	currentUserID := ctx.Values().GetString("id")
+	currentUserID := helpers.GetCurrentUserID(ctx)
 
 	if currentUserID == userID {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{Message: "Self-following is not allowed"})

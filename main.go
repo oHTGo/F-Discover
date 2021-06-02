@@ -1,20 +1,17 @@
 package main
 
 import (
-	"f-discover/middlewares"
+	"f-discover/authentication"
+	"f-discover/env"
 	"f-discover/user"
-	"log"
 
 	"github.com/iris-contrib/middleware/cors"
-	"github.com/joho/godotenv"
+	"github.com/iris-contrib/middleware/jwt"
 	"github.com/kataras/iris/v12"
 )
 
 func main() {
-	envConfig, err := godotenv.Read(".env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	env.Get()
 
 	app := iris.New()
 
@@ -25,22 +22,30 @@ func main() {
 	})
 	app.UseRouter(crs)
 
+	j := jwt.New(jwt.Config{
+		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+			return []byte(env.Get().JWT_SECRET), nil
+		},
+		SigningMethod: jwt.SigningMethodHS256,
+	})
+
 	api := app.Party("/api/")
 
-	api.Get("/", helloWorldPoint)
+	api.Get("/", func(ctx iris.Context) { ctx.JSON("Hello World") })
 
-	userRouter := api.Party("user")
+	authenticationRouter := api.Party("authentication")
 	{
-		userRouter.Get("/", middlewares.SetAuthentication(), user.Get)
-		userRouter.Put("/", middlewares.SetAuthentication(), user.UpdateProfile)
-		userRouter.Post("/upload-avatar", middlewares.SetAuthentication(), user.UploadAvatar)
-		userRouter.Get("/{id}", user.GetID)
-		userRouter.Post("/{id}/follow", middlewares.SetAuthentication(), user.Follow)
-		userRouter.Post("/{id}/unfollow", middlewares.SetAuthentication(), user.Unfollow)
+		authenticationRouter.Post("/", authentication.ExchangeToken)
 	}
-	app.Listen(":" + envConfig["PORT"])
-}
 
-func helloWorldPoint(ctx iris.Context) {
-	ctx.JSON("Hello World")
+	userRouter := api.Party("user", j.Serve)
+	{
+		userRouter.Get("/", user.Get)
+		userRouter.Put("/", user.UpdateProfile)
+		userRouter.Post("/upload-avatar", user.UploadAvatar)
+		userRouter.Get("/{id}", user.GetID)
+		userRouter.Post("/{id}/follow", user.Follow)
+		userRouter.Post("/{id}/unfollow", user.Unfollow)
+	}
+	app.Listen(":" + env.Get().PORT)
 }

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"f-discover/env"
 	"f-discover/instance"
 	"log"
 	"sync"
@@ -9,7 +10,6 @@ import (
 	"cloud.google.com/go/storage"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
-	"github.com/joho/godotenv"
 
 	"google.golang.org/api/option"
 )
@@ -69,12 +69,11 @@ func initialAuth(app *firebase.App) *auth.Client {
 }
 
 func initialStorage() (*storage.Client, *storage.BucketHandle) {
-	envConfig, _ := godotenv.Read(".env")
 	opt := option.WithCredentialsFile("serviceAccountKey.json")
 	client, err := storage.NewClient(instance.CtxBackground, opt)
 	if err != nil {
 		log.Fatalf("Error initializing storage: %v\n", err)
 	}
 
-	return client, client.Bucket(envConfig["STORAGE_BUCKET"])
+	return client, client.Bucket(env.Get().STORAGE_BUCKET)
 }

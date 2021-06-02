@@ -18,7 +18,7 @@ type NewAvatarUrl struct {
 func UploadAvatar(ctx iris.Context) {
 	helpers.CreateDir("uploads")
 
-	id := ctx.Values().GetString("id")
+	id := helpers.GetCurrentUserID(ctx)
 
 	_, fileHeader, err := ctx.FormFile("avatar")
 	if err != nil {

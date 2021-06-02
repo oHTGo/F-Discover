@@ -1,6 +1,7 @@
 package user
 
 import (
+	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/models"
@@ -13,7 +14,7 @@ import (
 func Get(ctx iris.Context) {
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
-	id := ctx.Values().GetString("id")
+	id := helpers.GetCurrentUserID(ctx)
 
 	dsnap, err := usersCollection.Doc(id).Get(instance.CtxBackground)
 	if err != nil {
