@@ -24,9 +24,11 @@ type TokenResponse struct {
 	Token string `json:"token"`
 }
 
-var id string
-var name string
-var avatarUrl string
+type User struct {
+	ID        string
+	Name      string
+	AvatarUrl string
+}
 
 func ExchangeToken(ctx iris.Context) {
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
@@ -39,35 +41,29 @@ func ExchangeToken(ctx iris.Context) {
 	}
 
 	token := body.Token
+	var user *User
 
-	idFirebase, nameFirebase, avatarUrlFirebase, errFirebase := verifyTokenFirebase(token)
-	idZalo, nameZalo, avatarUrlZalo, errZalo := verifyTokenZalo(token)
-
-	if errFirebase == nil {
-		id = idFirebase
-		name = nameFirebase
-		avatarUrl = avatarUrlFirebase
-	} else if errZalo == nil {
-		id = idZalo
-		name = nameZalo
-		avatarUrl = avatarUrlZalo
+	if decoded, err := verifyTokenFirebase(token); err == nil {
+		user = decoded
+	} else if decoded, err := verifyTokenZalo(token); err == nil {
+		user = decoded
 	} else {
 		ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Token not verified"})
 		return
 	}
 
-	_, err := usersCollection.Doc(id).Get(instance.CtxBackground)
+	_, err := usersCollection.Doc(user.ID).Get(instance.CtxBackground)
 	if err != nil {
-		user := models.User{
-			ID:        id,
-			Name:      name,
-			AvatarUrl: avatarUrl,
+		data := models.User{
+			ID:        user.ID,
+			Name:      user.Name,
+			AvatarUrl: user.AvatarUrl,
 		}
-		usersCollection.Doc(id).Set(instance.CtxBackground, user)
+		usersCollection.Doc(user.ID).Set(instance.CtxBackground, data)
 	}
 
 	j := jwt.NewTokenWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  id,
+		"id":  user.ID,
 		"exp": time.Now().Unix() + 60*60*24, //set expire time: 24 hours
 	})
 
@@ -83,50 +79,58 @@ func ExchangeToken(ctx iris.Context) {
 	})
 }
 
-func verifyTokenFirebase(token string) (string, string, string, error) {
+func verifyTokenFirebase(token string) (*User, error) {
 	authClient := services.GetInstance().AuthClient
 	payload, err := authClient.VerifyIDToken(instance.CtxBackground, token)
 	if err != nil {
-		return "", "", "", err
+		return nil, err
 	}
 
-	id := payload.Claims["user_id"].(string)
-	name := checkFieldMapFirebase(payload.Claims, "name", "")
-	avatarUrl := checkFieldMapFirebase(payload.Claims, "picture", "")
+	var id, name, avatarUrl string
 
-	return id, name, avatarUrl, nil
+	id = payload.Claims["user_id"].(string)
+	if namePayload, ok := payload.Claims["name"]; ok {
+		name = namePayload.(string)
+	} else {
+		name = payload.Claims["phone_number"].(string)
+	}
+	if avatarUrlPayload, ok := payload.Claims["picture"]; ok {
+		avatarUrl = avatarUrlPayload.(string)
+	}
+
+	return &User{
+		ID:        id,
+		Name:      name,
+		AvatarUrl: avatarUrl,
+	}, nil
 }
 
-func verifyTokenZalo(token string) (string, string, string, error) {
+func verifyTokenZalo(token string) (*User, error) {
 	url := "https://graph.zalo.me/v2.0/me?access_token=" + token + "&fields=id,name,picture"
 	resp, err := http.Get(url)
 	if err != nil {
-		return "", "", "", err
+		return nil, err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", "", "", err
+		return nil, err
 	}
 
 	mBody := make(map[string]interface{})
 	json.Unmarshal(body, &mBody)
 
 	if _, ok := mBody["error"]; ok {
-		return "", "", "", errors.New("token not verified")
+		return nil, errors.New("token not verified")
 	}
 
 	id := mBody["id"].(string)
 	name := mBody["name"].(string)
 	avatarUrl := mBody["picture"].(map[string]interface{})["data"].(map[string]interface{})["url"].(string)
 
-	return id, name, avatarUrl, nil
-}
-
-func checkFieldMapFirebase(payload map[string]interface{}, key string, valueDefault string) string {
-	if value, ok := payload[key]; ok {
-		return value.(string)
-	} else {
-		return valueDefault
-	}
+	return &User{
+		ID:        id,
+		Name:      name,
+		AvatarUrl: avatarUrl,
+	}, nil
 }
