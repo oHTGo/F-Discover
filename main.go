@@ -55,6 +55,8 @@ func main() {
 		postRouter.Post("/", post.Create)
 		postRouter.Get("/{id}", post.GetID)
 		postRouter.Post("/{id}/upload-files", post.UploadMediaFiles)
+
+		postRouter.Get("/list/{id}", post.GetListOfUser)
 	}
 
 	app.Listen(":" + env.Get().PORT)
