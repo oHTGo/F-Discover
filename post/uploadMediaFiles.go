@@ -6,7 +6,6 @@ import (
 	"f-discover/interfaces"
 	"f-discover/models"
 	"f-discover/services"
-	"log"
 	"path/filepath"
 
 	"cloud.google.com/go/firestore"
@@ -44,7 +43,6 @@ func UploadMediaFiles(ctx iris.Context) {
 
 	files, _, err := ctx.UploadFormFiles("./uploads")
 	if err != nil {
-		log.Println(err)
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
 			Message: "Upload media files failed",
 		})
