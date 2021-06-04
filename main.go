@@ -3,6 +3,7 @@ package main
 import (
 	"f-discover/authentication"
 	"f-discover/env"
+	"f-discover/post"
 	"f-discover/user"
 
 	"github.com/iris-contrib/middleware/cors"
@@ -48,5 +49,13 @@ func main() {
 		userRouter.Post("/{id}/follow", user.Follow)
 		userRouter.Post("/{id}/unfollow", user.Unfollow)
 	}
+
+	postRouter := api.Party("post", j.Serve)
+	{
+		postRouter.Post("/", post.Create)
+		postRouter.Get("/{id}", post.GetID)
+		postRouter.Post("/{id}/upload-files", post.UploadMediaFiles)
+	}
+
 	app.Listen(":" + env.Get().PORT)
 }
