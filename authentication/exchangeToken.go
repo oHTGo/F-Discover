@@ -68,6 +68,7 @@ func ExchangeToken(ctx iris.Context) {
 	})
 
 	jString, _ := j.SignedString([]byte(env.Get().JWT_SECRET))
+	ctx.SetCookieKV("token", jString, iris.CookieCleanPath, iris.CookieHTTPOnly(false))
 
 	res := TokenResponse{
 		Token: jString,
