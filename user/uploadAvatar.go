@@ -20,7 +20,7 @@ func UploadAvatar(ctx iris.Context) {
 
 	id := helpers.GetCurrentUserID(ctx)
 
-	_, fileHeader, err := ctx.FormFile("avatar")
+	files, _, err := ctx.UploadFormFiles("./uploads")
 	if err != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
 			Message: "Upload avatar failed",
@@ -28,14 +28,19 @@ func UploadAvatar(ctx iris.Context) {
 		return
 	}
 
-	// Upload the file to specific destination.
-	newNameFile := id + filepath.Ext(fileHeader.Filename)
-	dest := filepath.Join("./uploads", newNameFile)
-
-	_, err = ctx.SaveFormFile(fileHeader, dest)
-	if err != nil {
+	if len(files) != 1 {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
-			Message: "Upload avatar failed",
+			Message: "Only updaload 1 file",
+		})
+		return
+	}
+
+	newNameFile := id + filepath.Ext(files[0].Filename)
+	dest := filepath.Join("./uploads", files[0].Filename)
+
+	if !helpers.IsImage(dest) {
+		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
+			Message: "Type of file not supported",
 		})
 		return
 	}

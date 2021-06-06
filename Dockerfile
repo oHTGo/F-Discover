@@ -1,4 +1,4 @@
-FROM golang:1.16-buster
+FROM golang:1.15-alpine
 
 WORKDIR /app
 COPY . ./

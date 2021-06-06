@@ -3,6 +3,7 @@ package main
 import (
 	"f-discover/authentication"
 	"f-discover/env"
+	"f-discover/post"
 	"f-discover/user"
 
 	"github.com/iris-contrib/middleware/cors"
@@ -16,9 +17,10 @@ func main() {
 	app := iris.New()
 
 	crs := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
-		AllowedHeaders: []string{"*"},
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
 	})
 	app.UseRouter(crs)
 
@@ -47,5 +49,15 @@ func main() {
 		userRouter.Post("/{id}/follow", user.Follow)
 		userRouter.Post("/{id}/unfollow", user.Unfollow)
 	}
+
+	postRouter := api.Party("post", j.Serve)
+	{
+		postRouter.Post("/", post.Create)
+		postRouter.Get("/{id}", post.GetID)
+		postRouter.Post("/{id}/upload-files", post.UploadMediaFiles)
+
+		postRouter.Get("/list/{id}", post.GetListOfUser)
+	}
+
 	app.Listen(":" + env.Get().PORT)
 }

@@ -3,7 +3,7 @@ services:
     api:
         volumes:
             - ./:/app/
-    swagger-ui:
+    docs:
         image: swaggerapi/swagger-ui
         container_name: Docs_F-Discover
         ports:
