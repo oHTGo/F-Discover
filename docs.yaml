@@ -38,11 +38,11 @@ paths:
         "401":
           description: Unauthorized
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-              example: error
-
+                $ref: "#/components/schemas/Error"
+              example:
+                message: Token not verified
   /user:
     get:
       security:
@@ -68,6 +68,8 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: Get profile failed
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
     put:
       security:
         - BearerToken: []
@@ -94,6 +96,8 @@ paths:
                 message: Success
                 data:
                   name: Luong Gia Huy
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
         "400":
           description: Bad request
           content:
@@ -139,6 +143,8 @@ paths:
                 message: Success
                 data:
                   avatarUrl: "https://abc.com/avatar/Pbv9kN0dN2V2CeEdKql5gLQaNqk1.jpg"
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
         "400":
           description: Bad request
           content:
@@ -171,6 +177,8 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/User"
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
         "404":
           description: Not found
           content:
@@ -202,6 +210,8 @@ paths:
                 $ref: "#/components/schemas/Success"
               example:
                 message: Success
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
         "400":
           description: Bad request
           content:
@@ -233,6 +243,8 @@ paths:
                 $ref: "#/components/schemas/Success"
               example:
                 message: Success
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
         "400":
           description: Bad request
           content:
@@ -247,6 +259,14 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWTW
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: token is invalid
   schemas:
     Success:
       type: object
