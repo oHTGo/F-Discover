@@ -5,7 +5,8 @@ F-Discover is a backend
 ## Installation
 
 Use [Docker](https://www.docker.com/) to run.
-Generate a file **.env** from a file **.env.sample** and file **serviceAccountKey.json**
+Generate a file **.env** from a file **.env.sample** and file **serviceAccountKey.json**.
+Read more detailed instructions in the file **.env.sample**.
 
 ```bash
 #For Production
