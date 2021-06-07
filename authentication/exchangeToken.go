@@ -10,6 +10,7 @@ import (
 	"f-discover/services"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/iris-contrib/middleware/jwt"
@@ -17,6 +18,7 @@ import (
 )
 
 type TokenDTO struct {
+	Type  string `json:"type"`
 	Token string `json:"token"`
 }
 
@@ -36,19 +38,35 @@ func ExchangeToken(ctx iris.Context) {
 	var body TokenDTO
 
 	if err := ctx.ReadBody(&body); err != nil {
-		ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Token is not a valid token"})
+		ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Bad request"})
 		return
 	}
 
-	token := body.Token
 	var user *User
 
-	if decoded, err := verifyTokenFirebase(token); err == nil {
-		user = decoded
-	} else if decoded, err := verifyTokenZalo(token); err == nil {
-		user = decoded
-	} else {
-		ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Token not verified"})
+	switch strings.ToLower(body.Type) {
+	case "firebase":
+		if decoded, err := verifyTokenFirebase(body.Token); err == nil {
+			user = decoded
+		} else {
+			ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Token not verified"})
+			return
+		}
+	case "zalo":
+		token, err := exchangeTokenZalo(body.Token)
+		if err != nil {
+			ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Token not verified"})
+			return
+		}
+
+		if decoded, err := verifyTokenZalo(token); err == nil {
+			user = decoded
+		} else {
+			ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Token not verified"})
+			return
+		}
+	default:
+		ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Type is invalid"})
 		return
 	}
 
@@ -104,6 +122,29 @@ func verifyTokenFirebase(token string) (*User, error) {
 		Name:      name,
 		AvatarUrl: avatarUrl,
 	}, nil
+}
+
+func exchangeTokenZalo(code string) (string, error) {
+	APP_ID_ZALO := "4290210630035179148"
+	APP_SECRET_ZALO := "ZY4GuWVLoj37jORkjpPH"
+	url := "https://oauth.zaloapp.com/v3/access_token?app_id=" + APP_ID_ZALO + "&app_secret=" + APP_SECRET_ZALO + "&code=" + code
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	mBody := make(map[string]interface{})
+	json.Unmarshal(body, &mBody)
+
+	if _, ok := mBody["access_token"]; ok {
+		return mBody["access_token"].(string), nil
+	} else {
+		return "", errors.New("code is invalid")
+	}
 }
 
 func verifyTokenZalo(token string) (*User, error) {
