@@ -13,7 +13,11 @@ require (
 	github.com/iris-contrib/middleware/cors v0.0.0-20210110101738-6d0a4d799b5d
 	github.com/iris-contrib/middleware/jwt v0.0.0-20210110101738-6d0a4d799b5d
 	github.com/joho/godotenv v1.3.0
+	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kataras/iris/v12 v12.2.0-alpha2.0.20210427211137-fa175eb84754
+	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
+	github.com/yudai/pp v2.0.1+incompatible // indirect
+	golang.org/x/tools v0.1.1-0.20210504170620-03ebc2c9fca8 // indirect
 	google.golang.org/api v0.45.0
 )

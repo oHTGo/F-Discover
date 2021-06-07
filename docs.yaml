@@ -21,6 +21,10 @@ paths:
             schema:
               type: object
               properties:
+                type: 
+                  type: string
+                  description: Choice provider (firebase or zalo)
+                  example: firebase
                 token:
                   type: string
                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
