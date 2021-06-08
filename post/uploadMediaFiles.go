@@ -66,7 +66,7 @@ func UploadMediaFiles(ctx iris.Context) {
 			return
 		}
 
-		url, err := helpers.UploadFile(dest, "media/"+newNameFile)
+		url, err := helpers.UploadFile(dest, "media/"+post.ID+"/"+newNameFile)
 		if err != nil {
 			ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
 				Message: "Upload media files failed",
@@ -79,6 +79,18 @@ func UploadMediaFiles(ctx iris.Context) {
 		} else {
 			videos = append(videos, url)
 		}
+	}
+
+	var listOldFile []string
+	if post.Images != nil && post.Videos != nil {
+		listOldFile = append(post.Images, post.Videos...)
+	} else if post.Images != nil {
+		listOldFile = post.Images
+	} else {
+		listOldFile = post.Videos
+	}
+	for _, file := range listOldFile {
+		helpers.DeleteFile(file)
 	}
 
 	_, _ = postsCollection.Doc(postID).Update(instance.CtxBackground, []firestore.Update{
