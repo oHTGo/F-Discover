@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func DeleteFile(path string) {
+func DeleteFileStorage(path string) {
 	var object string
 	if ok := strings.Contains(path, env.Get().STORAGE_BUCKET); ok {
 		runes := []rune(path)

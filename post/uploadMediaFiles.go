@@ -19,7 +19,6 @@ type NewMediaFiles struct {
 }
 
 func UploadMediaFiles(ctx iris.Context) {
-	helpers.CreateDir("uploads")
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
 
 	id := helpers.GetCurrentUserID(ctx)
@@ -41,10 +40,10 @@ func UploadMediaFiles(ctx iris.Context) {
 		return
 	}
 
-	files, _, err := ctx.UploadFormFiles("./uploads")
+	files, err := helpers.UploadFiles(ctx)
 	if err != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
-			Message: "Upload media files failed",
+			Message: err.Error(),
 		})
 		return
 	}
@@ -66,7 +65,7 @@ func UploadMediaFiles(ctx iris.Context) {
 			return
 		}
 
-		url, err := helpers.UploadFile(dest, "media/"+post.ID+"/"+newNameFile)
+		url, err := helpers.UploadFileStorage(dest, "media/"+post.ID+"/"+newNameFile)
 		if err != nil {
 			ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
 				Message: "Upload media files failed",
@@ -90,7 +89,7 @@ func UploadMediaFiles(ctx iris.Context) {
 		listOldFile = post.Videos
 	}
 	for _, file := range listOldFile {
-		helpers.DeleteFile(file)
+		helpers.DeleteFileStorage(file)
 	}
 
 	_, _ = postsCollection.Doc(postID).Update(instance.CtxBackground, []firestore.Update{
