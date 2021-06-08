@@ -58,6 +58,7 @@ func main() {
 		postRouter.Post("/{id}/upload-files", post.UploadMediaFiles)
 		postRouter.Post("/{id}/like", post.Like)
 		postRouter.Post("/{id}/unlike", post.Unlike)
+		postRouter.Delete("/{id}", post.Delete)
 
 		postRouter.Get("/list/{id}", post.GetListOfUser)
 	}
