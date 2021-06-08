@@ -24,13 +24,6 @@ type NewPost struct {
 
 func Create(ctx iris.Context) {
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
-	usersCollection := services.GetInstance().StoreClient.Collection("users")
-
-	userID := helpers.GetCurrentUserID(ctx)
-	authorRef := usersCollection.Doc(userID)
-	var author models.User
-	dsnap, _ := authorRef.Get(instance.CtxBackground)
-	dsnap.DataTo(&author)
 
 	var body CreatePostDTO
 	if err := ctx.ReadBody(&body); err != nil {
@@ -45,11 +38,17 @@ func Create(ctx iris.Context) {
 		return
 	}
 
+	currentUser := helpers.GetCurrentUser(ctx)
+
+	dsnap, _ := currentUser.Reference.Get(instance.CtxBackground)
+	var user models.User
+	dsnap.DataTo(&user)
+
 	newPost := postsCollection.NewDoc()
 	post := models.Post{
 		ID:      newPost.ID,
 		Content: body.Content,
-		Author:  authorRef,
+		Author:  currentUser.Reference,
 	}
 	_, _ = newPost.Set(instance.CtxBackground, post)
 
@@ -59,9 +58,9 @@ func Create(ctx iris.Context) {
 			ID:      post.ID,
 			Content: post.Content,
 			Author: IPost.Author{
-				ID:        author.ID,
-				Name:      author.Name,
-				AvatarUrl: author.AvatarUrl,
+				ID:        user.ID,
+				Name:      user.Name,
+				AvatarUrl: user.AvatarUrl,
 			},
 		},
 	})

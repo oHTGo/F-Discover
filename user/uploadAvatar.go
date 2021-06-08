@@ -16,8 +16,6 @@ type NewAvatarUrl struct {
 }
 
 func UploadAvatar(ctx iris.Context) {
-	id := helpers.GetCurrentUserID(ctx)
-
 	files, err := helpers.UploadFiles(ctx)
 	if err != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
@@ -33,7 +31,9 @@ func UploadAvatar(ctx iris.Context) {
 		return
 	}
 
-	newNameFile := id + filepath.Ext(files[0].Filename)
+	currentUser := helpers.GetCurrentUser(ctx)
+
+	newNameFile := currentUser.ID + filepath.Ext(files[0].Filename)
 	dest := filepath.Join("./uploads", files[0].Filename)
 
 	if !helpers.IsImage(dest) {
@@ -52,7 +52,7 @@ func UploadAvatar(ctx iris.Context) {
 	}
 
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
-	_, _ = usersCollection.Doc(id).Update(instance.CtxBackground, []firestore.Update{
+	_, _ = usersCollection.Doc(currentUser.ID).Update(instance.CtxBackground, []firestore.Update{
 		{
 			Path:  "avatarUrl",
 			Value: url,

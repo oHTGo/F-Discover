@@ -16,9 +16,9 @@ func Follow(ctx iris.Context) {
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
 	userID := ctx.Params().Get("id")
-	currentUserID := helpers.GetCurrentUserID(ctx)
+	currentUser := helpers.GetCurrentUser(ctx)
 
-	if currentUserID == userID {
+	if currentUser.ID == userID {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{Message: "Self-following is not allowed"})
 		return
 	}
@@ -33,21 +33,19 @@ func Follow(ctx iris.Context) {
 	dsnapUser.DataTo(&userDoc)
 
 	// Check current user has followed this user or not
-	if userDoc.Followers[currentUserID] != nil {
+	if userDoc.Followers[currentUser.ID] != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{Message: "Current user has followed this user"})
 		return
 	}
 
-	currentUserRef := usersCollection.Doc(currentUserID)
-
 	_, _ = usersCollection.Doc(userID).Update(context.Background(), []firestore.Update{
 		{
-			Path:  "followers." + currentUserID,
-			Value: currentUserRef,
+			Path:  "followers." + currentUser.ID,
+			Value: currentUser.Reference,
 		},
 	})
 
-	_, _ = usersCollection.Doc(currentUserID).Update(context.Background(), []firestore.Update{
+	_, _ = usersCollection.Doc(currentUser.ID).Update(context.Background(), []firestore.Update{
 		{
 			Path:  "following." + userID,
 			Value: dsnapUser.Ref,

@@ -22,7 +22,6 @@ type NewUpdatePost struct {
 
 func Update(ctx iris.Context) {
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
-	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
 	postID := ctx.Params().Get("id")
 	dsnap, err := postsCollection.Doc(postID).Get(instance.CtxBackground)
@@ -33,13 +32,9 @@ func Update(ctx iris.Context) {
 	var post models.Post
 	dsnap.DataTo(&post)
 
-	userID := helpers.GetCurrentUserID(ctx)
-	authorRef := usersCollection.Doc(userID)
-	var author models.User
-	dsnap, _ = authorRef.Get(instance.CtxBackground)
-	dsnap.DataTo(&author)
+	currentUser := helpers.GetCurrentUser(ctx)
 
-	if post.Author.ID != authorRef.ID {
+	if post.Author.ID != currentUser.ID {
 		ctx.StopWithJSON(iris.StatusForbidden, interfaces.IFail{Message: "User is not the author of the post"})
 		return
 	}

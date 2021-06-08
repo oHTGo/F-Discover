@@ -12,7 +12,6 @@ import (
 
 func Delete(ctx iris.Context) {
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
-	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
 	postID := ctx.Params().Get("id")
 	dsnap, err := postsCollection.Doc(postID).Get(instance.CtxBackground)
@@ -23,10 +22,9 @@ func Delete(ctx iris.Context) {
 	var post models.Post
 	dsnap.DataTo(&post)
 
-	userID := helpers.GetCurrentUserID(ctx)
-	authorRef := usersCollection.Doc(userID)
+	currentUser := helpers.GetCurrentUser(ctx)
 
-	if post.Author.ID != authorRef.ID {
+	if post.Author.ID != currentUser.ID {
 		ctx.StopWithJSON(iris.StatusForbidden, interfaces.IFail{Message: "User is not the author of the post"})
 		return
 	}

@@ -21,9 +21,6 @@ type NewMediaFiles struct {
 func UploadMediaFiles(ctx iris.Context) {
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
 
-	id := helpers.GetCurrentUserID(ctx)
-	refUser := services.GetInstance().StoreClient.Collection("users").Doc(id)
-
 	postID := ctx.Params().Get("id")
 
 	dsnap, err := postsCollection.Doc(postID).Get(instance.CtxBackground)
@@ -35,7 +32,9 @@ func UploadMediaFiles(ctx iris.Context) {
 	var post models.Post
 	dsnap.DataTo(&post)
 
-	if post.Author.ID != refUser.ID {
+	currentUser := helpers.GetCurrentUser(ctx)
+
+	if post.Author.ID != currentUser.ID {
 		ctx.StopWithJSON(iris.StatusForbidden, interfaces.IFail{Message: "User is not the author of the post"})
 		return
 	}

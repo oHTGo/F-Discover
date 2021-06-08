@@ -22,7 +22,7 @@ type NewProfile struct {
 func UpdateProfile(ctx iris.Context) {
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
-	id := helpers.GetCurrentUserID(ctx)
+	currenUser := helpers.GetCurrentUser(ctx)
 
 	var body UpdateProfileDTO
 	if err := ctx.ReadBody(&body); err != nil {
@@ -37,7 +37,7 @@ func UpdateProfile(ctx iris.Context) {
 		return
 	}
 
-	_, _ = usersCollection.Doc(id).Update(instance.CtxBackground, []firestore.Update{
+	_, _ = usersCollection.Doc(currenUser.ID).Update(instance.CtxBackground, []firestore.Update{
 		{
 			Path:  "name",
 			Value: string(body.Name),

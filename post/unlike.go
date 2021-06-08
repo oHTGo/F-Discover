@@ -16,7 +16,6 @@ func Unlike(ctx iris.Context) {
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
 
 	postID := ctx.Params().Get("id")
-	userID := helpers.GetCurrentUserID(ctx)
 
 	dsnap, err := postsCollection.Doc(postID).Get(instance.CtxBackground)
 	if err != nil {
@@ -27,15 +26,17 @@ func Unlike(ctx iris.Context) {
 	var post models.Post
 	dsnap.DataTo(&post)
 
+	currentUser := helpers.GetCurrentUser(ctx)
+
 	// Check current user has liked this post or not
-	if !post.Likes[userID] {
+	if !post.Likes[currentUser.ID] {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{Message: "Current user has not liked this post"})
 		return
 	}
 
 	_, _ = postsCollection.Doc(postID).Update(context.Background(), []firestore.Update{
 		{
-			Path:  "likes." + userID,
+			Path:  "likes." + currentUser.ID,
 			Value: firestore.Delete,
 		},
 	})

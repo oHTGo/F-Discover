@@ -14,9 +14,9 @@ import (
 func Get(ctx iris.Context) {
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
 
-	id := helpers.GetCurrentUserID(ctx)
+	currentUser := helpers.GetCurrentUser(ctx)
 
-	dsnap, err := usersCollection.Doc(id).Get(instance.CtxBackground)
+	dsnap, err := usersCollection.Doc(currentUser.ID).Get(instance.CtxBackground)
 	if err != nil {
 		ctx.StopWithJSON(iris.StatusInternalServerError, interfaces.IFail{Message: "Get profile failed"})
 		return
