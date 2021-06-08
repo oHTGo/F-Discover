@@ -59,6 +59,8 @@ func UploadAvatar(ctx iris.Context) {
 		},
 	})
 
+	helpers.DeleteDir("uploads")
+
 	ctx.JSON(interfaces.ISuccess{
 		Message: "Success",
 		Data: NewAvatarUrl{

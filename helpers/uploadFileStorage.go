@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"f-discover/env"
-	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/services"
 	"io"
@@ -33,9 +32,6 @@ func UploadFileStorage(filePath string, object string) (string, error) {
 	if err := acl.Set(instance.CtxBackground, storage.AllUsers, storage.RoleReader); err != nil {
 		return "", err
 	}
-
-	helpers.DeleteDir()
-
 	url := "https://storage.googleapis.com/" + env.Get().STORAGE_BUCKET + "/" + writer.Name
 	return url, nil
 }
