@@ -125,8 +125,8 @@ func verifyTokenFirebase(token string) (*User, error) {
 }
 
 func exchangeTokenZalo(code string) (string, error) {
-	APP_ID_ZALO := "4290210630035179148"
-	APP_SECRET_ZALO := "ZY4GuWVLoj37jORkjpPH"
+	APP_ID_ZALO := env.Get().APP_ID_ZALO
+	APP_SECRET_ZALO := env.Get().APP_SECRET_ZALO
 	url := "https://oauth.zaloapp.com/v3/access_token?app_id=" + APP_ID_ZALO + "&app_secret=" + APP_SECRET_ZALO + "&code=" + code
 	resp, err := http.Get(url)
 	if err != nil {
