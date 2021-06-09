@@ -60,6 +60,11 @@ func main() {
 		postRouter.Post("/{id}/unlike", post.Unlike)
 		postRouter.Delete("/{id}", post.Delete)
 
+		postRouter.Post("/{id}/comment", post.CreatComment)
+		postRouter.Get("/{id}/comment/{commentID}", post.GetComment)
+		postRouter.Put("/{id}/comment/{commentID}", post.UpdateComment)
+		postRouter.Delete("/{id}/comment/{commentID}", post.DeleteComment)
+
 		postRouter.Get("/list/{id}", post.GetListOfUser)
 	}
 
