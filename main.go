@@ -3,18 +3,22 @@ package main
 import (
 	"f-discover/authentication"
 	"f-discover/env"
+	"f-discover/interfaces"
 	"f-discover/post"
 	"f-discover/user"
+	"strings"
 
 	"github.com/iris-contrib/middleware/cors"
 	"github.com/iris-contrib/middleware/jwt"
 	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/middleware/recover"
 )
 
 func main() {
 	env.Get()
 
 	app := iris.New()
+	app.Use(recover.New())
 
 	crs := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
@@ -29,6 +33,16 @@ func main() {
 			return []byte(env.Get().JWT_SECRET), nil
 		},
 		SigningMethod: jwt.SigningMethodHS256,
+		ErrorHandler: func(ctx iris.Context, err error) {
+			ctx.StopExecution()
+			ctx.StatusCode(iris.StatusUnauthorized)
+
+			errMessage := []rune(err.Error())
+			message := strings.ToUpper(string(errMessage[:1])) + strings.ToLower(string(errMessage[1:]))
+			ctx.JSON(interfaces.IFail{
+				Message: string(message),
+			})
+		},
 	})
 
 	api := app.Party("/api/")
