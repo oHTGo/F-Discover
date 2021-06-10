@@ -21,7 +21,7 @@ paths:
             schema:
               type: object
               properties:
-                type: 
+                type:
                   type: string
                   description: Choice provider (firebase or zalo)
                   example: firebase
@@ -73,7 +73,7 @@ paths:
               example:
                 message: Get profile failed
         "401":
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: "#/components/responses/UnauthorizedError"
     put:
       security:
         - BearerToken: []
@@ -101,7 +101,7 @@ paths:
                 data:
                   name: Luong Gia Huy
         "401":
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: "#/components/responses/UnauthorizedError"
         "400":
           description: Bad request
           content:
@@ -148,7 +148,7 @@ paths:
                 data:
                   avatarUrl: "https://abc.com/avatar/Pbv9kN0dN2V2CeEdKql5gLQaNqk1.jpg"
         "401":
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: "#/components/responses/UnauthorizedError"
         "400":
           description: Bad request
           content:
@@ -182,7 +182,7 @@ paths:
                   data:
                     $ref: "#/components/schemas/User"
         "401":
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: "#/components/responses/UnauthorizedError"
         "404":
           description: Not found
           content:
@@ -215,7 +215,7 @@ paths:
               example:
                 message: Success
         "401":
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: "#/components/responses/UnauthorizedError"
         "400":
           description: Bad request
           content:
@@ -248,7 +248,7 @@ paths:
               example:
                 message: Success
         "401":
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: "#/components/responses/UnauthorizedError"
         "400":
           description: Bad request
           content:
@@ -269,8 +269,11 @@ components:
       content:
         text/plain:
           schema:
-            type: string
-            example: token is invalid
+            type: object
+            properties:
+              message:
+                type: string
+                example: Token is invalid
   schemas:
     Success:
       type: object
@@ -303,6 +306,9 @@ components:
         avatarUrl:
           type: string
           example: "https://abc.com/avatar/Pbv9kN0dN2V2CeEdKql5gLQaNqk1.jpg"
+        quote:
+          type: string
+          example: "My quote"
         following:
           type: number
           example: 10
