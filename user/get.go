@@ -29,6 +29,7 @@ func Get(ctx iris.Context) {
 		ID:        user.ID,
 		Name:      user.Name,
 		AvatarUrl: user.AvatarUrl,
+		Quote:     user.Quote,
 		Following: len(user.Following),
 		Followers: len(user.Followers),
 	}

@@ -12,11 +12,13 @@ import (
 )
 
 type UpdateProfileDTO struct {
-	Name string `json:"name"`
+	Name  string `json:"name"`
+	Quote string `json:"quote"`
 }
 
 type NewProfile struct {
-	Name string `json:"name"`
+	Name  string `json:"name"`
+	Quote string `json:"quote"`
 }
 
 func UpdateProfile(ctx iris.Context) {
@@ -32,6 +34,7 @@ func UpdateProfile(ctx iris.Context) {
 
 	if errValidation := validation.ValidateStruct(&body,
 		validation.Field(&body.Name, validation.Required),
+		validation.Field(&body.Quote, validation.Required),
 	); errValidation != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFailWithErrors{Message: "Have validation error", Errors: errValidation})
 		return
@@ -42,12 +45,17 @@ func UpdateProfile(ctx iris.Context) {
 			Path:  "name",
 			Value: string(body.Name),
 		},
+		{
+			Path:  "quote",
+			Value: string(body.Quote),
+		},
 	})
 
 	ctx.JSON(interfaces.ISuccess{
 		Message: "Success",
 		Data: NewProfile{
-			Name: string(body.Name),
+			Name:  string(body.Name),
+			Quote: string(body.Quote),
 		},
 	})
 }
