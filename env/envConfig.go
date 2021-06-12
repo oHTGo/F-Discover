@@ -11,6 +11,7 @@ import (
 var once sync.Once
 
 type single struct {
+	LOG_MODE        string
 	PORT            string
 	STORAGE_BUCKET  string
 	MAX_FILE_SIZE   int64
@@ -31,6 +32,7 @@ func Get() *single {
 				}
 
 				singleInstance = new(single)
+				singleInstance.LOG_MODE = envConfig["LOG_MODE"]
 				singleInstance.PORT = envConfig["PORT"]
 				singleInstance.STORAGE_BUCKET = envConfig["STORAGE_BUCKET"]
 				singleInstance.MAX_FILE_SIZE, _ = strconv.ParseInt(envConfig["MAX_FILE_SIZE"], 10, 64)

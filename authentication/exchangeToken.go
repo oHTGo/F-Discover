@@ -38,7 +38,7 @@ func ExchangeToken(ctx iris.Context) {
 	var body TokenDTO
 
 	if err := ctx.ReadBody(&body); err != nil {
-		ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Bad request"})
+		ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Body is bad request"})
 		return
 	}
 
@@ -49,13 +49,13 @@ func ExchangeToken(ctx iris.Context) {
 		if decoded, err := verifyTokenFirebase(body.Token); err == nil {
 			user = decoded
 		} else {
-			ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Token not verified"})
+			ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: err.Error()})
 			return
 		}
 	case "zalo":
 		token, err := exchangeTokenZalo(body.Token)
 		if err != nil {
-			ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: "Token not verified"})
+			ctx.StopWithJSON(iris.StatusUnauthorized, interfaces.IFail{Message: err.Error()})
 			return
 		}
 
@@ -102,7 +102,7 @@ func verifyTokenFirebase(token string) (*User, error) {
 	authClient := services.GetInstance().AuthClient
 	payload, err := authClient.VerifyIDToken(instance.CtxBackground, token)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Token not verified")
 	}
 
 	var id, name, avatarUrl string
@@ -130,20 +130,23 @@ func exchangeTokenZalo(code string) (string, error) {
 	url := "https://oauth.zaloapp.com/v3/access_token?app_id=" + APP_ID_ZALO + "&app_secret=" + APP_SECRET_ZALO + "&code=" + code
 	resp, err := http.Get(url)
 	if err != nil {
-		return "", err
+		return "", errors.New("Code is invalid")
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", errors.New("Code is invalid")
 	}
+
 	mBody := make(map[string]interface{})
-	json.Unmarshal(body, &mBody)
+	if err = json.Unmarshal(body, &mBody); err != nil {
+		return "", errors.New("Code is invalid")
+	}
 
 	if _, ok := mBody["access_token"]; ok {
 		return mBody["access_token"].(string), nil
 	} else {
-		return "", errors.New("code is invalid")
+		return "", errors.New("Code is invalid")
 	}
 }
 
@@ -151,19 +154,21 @@ func verifyTokenZalo(token string) (*User, error) {
 	url := "https://graph.zalo.me/v2.0/me?access_token=" + token + "&fields=id,name,picture"
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Token not verified")
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Token not verified")
 	}
 
 	mBody := make(map[string]interface{})
-	json.Unmarshal(body, &mBody)
+	if err = json.Unmarshal(body, &mBody); err != nil {
+		return nil, errors.New("Code is invalid")
+	}
 
 	if _, ok := mBody["error"]; ok {
-		return nil, errors.New("token not verified")
+		return nil, errors.New("Token not verified")
 	}
 
 	id := mBody["id"].(string)

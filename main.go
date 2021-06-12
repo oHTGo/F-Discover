@@ -3,7 +3,9 @@ package main
 import (
 	"f-discover/authentication"
 	"f-discover/env"
+	"f-discover/errors"
 	"f-discover/interfaces"
+	"f-discover/logger"
 	"f-discover/post"
 	"f-discover/user"
 	"strings"
@@ -11,14 +13,16 @@ import (
 	"github.com/iris-contrib/middleware/cors"
 	"github.com/iris-contrib/middleware/jwt"
 	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/middleware/recover"
 )
 
 func main() {
 	env.Get()
 
+	logger.Init()
+
 	app := iris.New()
-	app.Use(recover.New())
+	app.Use(errors.Handle())
+	app.Use(logger.Handle())
 
 	crs := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
@@ -62,6 +66,8 @@ func main() {
 		userRouter.Get("/{id}", user.GetID)
 		userRouter.Post("/{id}/follow", user.Follow)
 		userRouter.Post("/{id}/unfollow", user.Unfollow)
+
+		userRouter.Get("/recommend", user.Recommend)
 	}
 
 	postRouter := api.Party("post", j.Serve)
