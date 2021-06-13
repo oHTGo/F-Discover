@@ -33,7 +33,7 @@ func Follow(ctx iris.Context) {
 	dsnapUser.DataTo(&userDoc)
 
 	// Check current user has followed this user or not
-	if userDoc.Followers[currentUser.ID] != nil {
+	if _, ok := userDoc.Followers[currentUser.ID]; ok {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{Message: "Current user has followed this user"})
 		return
 	}
@@ -41,14 +41,14 @@ func Follow(ctx iris.Context) {
 	_, _ = usersCollection.Doc(userID).Update(context.Background(), []firestore.Update{
 		{
 			Path:  "followers." + currentUser.ID,
-			Value: currentUser.Reference,
+			Value: true,
 		},
 	})
 
 	_, _ = usersCollection.Doc(currentUser.ID).Update(context.Background(), []firestore.Update{
 		{
 			Path:  "following." + userID,
-			Value: dsnapUser.Ref,
+			Value: true,
 		},
 	})
 

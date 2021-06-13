@@ -58,14 +58,15 @@ func main() {
 		authenticationRouter.Post("/", authentication.ExchangeToken)
 	}
 
-	userRouter := api.Party("user", j.Serve)
+	userRouter := api.Party("user")
 	{
-		userRouter.Get("/", user.Get)
-		userRouter.Put("/", user.UpdateProfile)
-		userRouter.Post("/upload-avatar", user.UploadAvatar)
+		userRouter.Get("/", j.Serve, user.Get)
+		userRouter.Put("/", j.Serve, user.UpdateProfile)
+		userRouter.Post("/upload-avatar", j.Serve, user.UploadAvatar)
+		userRouter.Post("/upload-cover", j.Serve, user.UploadCover)
 		userRouter.Get("/{id}", user.GetID)
-		userRouter.Post("/{id}/follow", user.Follow)
-		userRouter.Post("/{id}/unfollow", user.Unfollow)
+		userRouter.Post("/{id}/follow", j.Serve, user.Follow)
+		userRouter.Post("/{id}/unfollow", j.Serve, user.Unfollow)
 
 		userRouter.Get("/recommend", user.Recommend)
 	}

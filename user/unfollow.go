@@ -32,7 +32,7 @@ func Unfollow(ctx iris.Context) {
 	dsnapUser.DataTo(&userDoc)
 
 	// Check current user has followed this user or not
-	if userDoc.Followers[currentUser.ID] == nil {
+	if _, ok := userDoc.Followers[currentUser.ID]; !ok {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{Message: "Current user has not followed this user"})
 		return
 	}
