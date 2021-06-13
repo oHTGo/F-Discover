@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"f-discover/interfaces"
+	"f-discover/logger"
 	"f-discover/services"
 
 	"github.com/dgrijalva/jwt-go"
@@ -10,6 +11,7 @@ import (
 
 func GetCurrentUser(ctx iris.Context) *interfaces.CurrentUser {
 	id := ctx.Values().Get("jwt").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(string)
+	logger.Info("Access log", "ID user: "+id)
 
 	return &interfaces.CurrentUser{
 		ID:        id,
