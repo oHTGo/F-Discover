@@ -1,14 +1,11 @@
 version: '3.9'
 services:
     api:
+        container_name: api_f-discover_dev
+        image: api_f-discover_dev:latest
+        build:
+            context: .
+            target: development
+            dockerfile: ./Dockerfile
         volumes:
             - ./:/app/
-    docs:
-        image: swaggerapi/swagger-ui
-        container_name: Docs_F-Discover
-        ports:
-            - "80:8080"
-        volumes:
-        - ./docs.yaml:/docs.yaml
-        environment:
-            SWAGGER_JSON: /docs.yaml
