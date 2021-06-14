@@ -53,12 +53,12 @@ func UpdateComment(ctx iris.Context) {
 	dsnap.DataTo(&post)
 
 	commentID := ctx.Params().Get("commentID")
-	if _, ok := post.Comment[commentID]; !ok {
+	if _, ok := post.Comments[commentID]; !ok {
 		ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "Comment is inexistent"})
 		return
 	}
 
-	var comment models.Comment = post.Comment[commentID]
+	var comment models.Comment = post.Comments[commentID]
 
 	if comment.Author.ID != currentUser.ID {
 		ctx.StopWithJSON(iris.StatusForbidden, interfaces.IFail{Message: "User is not the author of the comment"})
