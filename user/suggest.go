@@ -16,7 +16,7 @@ type SuggestResponse struct {
 }
 
 type SuggestQuery struct {
-	Max int `url:"max" json:"max"`
+	Limit int `url:"limit" json:"limit"`
 }
 
 func Suggest(ctx iris.Context) {
@@ -29,7 +29,7 @@ func Suggest(ctx iris.Context) {
 	}
 
 	if errValidation := validation.ValidateStruct(&query,
-		validation.Field(&query.Max, validation.Required),
+		validation.Field(&query.Limit, validation.Required, validation.Min(1)),
 	); errValidation != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFailWithErrors{Message: "Have validation error", Errors: errValidation})
 		return
@@ -40,7 +40,7 @@ func Suggest(ctx iris.Context) {
 
 	var suggestedUsers []SuggestResponse
 
-	if len(users) <= query.Max {
+	if len(users) <= query.Limit {
 		for _, user := range users {
 			id := user.Ref.ID
 			name, _ := user.DataAt("name")
@@ -50,7 +50,7 @@ func Suggest(ctx iris.Context) {
 			})
 		}
 	} else {
-		for _, position := range rand.Perm(len(users) - 1)[:query.Max] {
+		for _, position := range rand.Perm(len(users) - 1)[:query.Limit] {
 			id := users[position].Ref.ID
 			name, _ := users[position].DataAt("name")
 			suggestedUsers = append(suggestedUsers, SuggestResponse{
