@@ -5,8 +5,10 @@ import (
 	"f-discover/env"
 	"f-discover/errors"
 	"f-discover/interfaces"
+	"f-discover/location"
 	"f-discover/logger"
 	"f-discover/post"
+	"f-discover/search"
 	"f-discover/user"
 	"strings"
 
@@ -68,7 +70,7 @@ func main() {
 		userRouter.Post("/{id}/follow", j.Serve, user.Follow)
 		userRouter.Post("/{id}/unfollow", j.Serve, user.Unfollow)
 
-		userRouter.Get("/recommend", user.Recommend)
+		userRouter.Get("/suggest", user.Suggest)
 	}
 
 	postRouter := api.Party("post", j.Serve)
@@ -76,7 +78,7 @@ func main() {
 		postRouter.Post("/", post.Create)
 		postRouter.Get("/{id}", post.GetID)
 		postRouter.Put("/{id}", post.Update)
-		postRouter.Post("/{id}/upload-files", post.UploadMediaFiles)
+		postRouter.Post("/{id}/upload-video", post.UploadVideo)
 		postRouter.Post("/{id}/like", post.Like)
 		postRouter.Post("/{id}/unlike", post.Unlike)
 		postRouter.Delete("/{id}", post.Delete)
@@ -86,7 +88,20 @@ func main() {
 		postRouter.Put("/{id}/comment/{commentID}", post.UpdateComment)
 		postRouter.Delete("/{id}/comment/{commentID}", post.DeleteComment)
 
-		postRouter.Get("/list/{id}", post.GetListOfUser)
+		postRouter.Get("/user/{id}", post.GetListOfUser)
+		postRouter.Get("/location/{id}", post.GetListOfLocation)
+		postRouter.Get("/following", post.GetListOfFollowing)
+		postRouter.Get("/suggest", post.Suggest)
+	}
+
+	locationRouter := api.Party("location")
+	{
+		locationRouter.Get("/", location.GetList)
+	}
+
+	searchRouter := api.Party("search")
+	{
+		searchRouter.Get("/", search.Search)
 	}
 
 	app.Listen(":" + env.Get().PORT)
