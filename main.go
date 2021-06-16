@@ -67,6 +67,7 @@ func main() {
 		userRouter.Post("/upload-avatar", j.Serve, user.UploadAvatar)
 		userRouter.Post("/upload-cover", j.Serve, user.UploadCover)
 		userRouter.Get("/{id}", user.GetID)
+		userRouter.Get("/{id}/follow", j.Serve, user.CheckFollow)
 		userRouter.Post("/{id}/follow", j.Serve, user.Follow)
 		userRouter.Post("/{id}/unfollow", j.Serve, user.Unfollow)
 
@@ -79,6 +80,7 @@ func main() {
 		postRouter.Get("/{id}", post.GetID)
 		postRouter.Put("/{id}", post.Update)
 		postRouter.Post("/{id}/upload-video", post.UploadVideo)
+		postRouter.Get("/{id}/like", post.CheckLike)
 		postRouter.Post("/{id}/like", post.Like)
 		postRouter.Post("/{id}/unlike", post.Unlike)
 		postRouter.Delete("/{id}", post.Delete)
