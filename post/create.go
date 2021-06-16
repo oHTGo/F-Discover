@@ -38,14 +38,9 @@ func Create(ctx iris.Context) {
 
 	if errValidation := validation.ValidateStruct(&body,
 		validation.Field(&body.Content, validation.Required),
-		validation.Field(&body.Location, validation.Required),
+		validation.Field(&body.Location, validation.Required, validation.By(location.CheckValidationForValidator)),
 	); errValidation != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFailWithErrors{Message: "Have validation error", Errors: errValidation})
-		return
-	}
-
-	if !location.CheckValidation(body.Location) {
-		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{Message: "Location is invalid"})
 		return
 	}
 
