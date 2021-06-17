@@ -21,6 +21,5 @@ type Comment struct {
 	ID        string                 `firestore:"id" json:"id"`
 	Content   string                 `firestore:"content" json:"content"`
 	CreatedAt time.Time              `firestore:"createdAt" json:"createdAt"`
-	UpdatedAt time.Time              `firestore:"updatedAt" json:"updatedAt"`
 	Author    *firestore.DocumentRef `firestore:"author" json:"author"`
 }

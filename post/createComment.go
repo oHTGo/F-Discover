@@ -19,14 +19,6 @@ type CreateCommentDTO struct {
 	Content string `json:"content"`
 }
 
-type NewCommentResponse struct {
-	ID        string       `json:"id"`
-	Content   string       `json:"content"`
-	CreatedAt time.Time    `json:"createdAt"`
-	UpdatedAt time.Time    `json:"updatedAt"`
-	Author    IPost.Author `json:"author"`
-}
-
 func CreatComment(ctx iris.Context) {
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
 
@@ -44,9 +36,6 @@ func CreatComment(ctx iris.Context) {
 	}
 
 	currentUser := helpers.GetCurrentUser(ctx)
-	dsnap, _ := currentUser.Reference.Get(instance.CtxBackground)
-	var author models.User
-	dsnap.DataTo(&author)
 
 	postID := ctx.Params().Get("id")
 	_, err := postsCollection.Doc(postID).Get(instance.CtxBackground)
@@ -55,13 +44,10 @@ func CreatComment(ctx iris.Context) {
 		return
 	}
 
-	createdAt := time.Now()
-
 	comment := models.Comment{
 		ID:        helpers.RandomString(20),
 		Content:   body.Content,
-		CreatedAt: createdAt,
-		UpdatedAt: createdAt,
+		CreatedAt: time.Now(),
 		Author:    currentUser.Reference,
 	}
 
@@ -74,16 +60,10 @@ func CreatComment(ctx iris.Context) {
 
 	ctx.JSON(interfaces.ISuccess{
 		Message: "Success",
-		Data: NewCommentResponse{
+		Data: IPost.CommentWithoutAuthor{
 			ID:        comment.ID,
 			Content:   comment.Content,
 			CreatedAt: comment.CreatedAt,
-			UpdatedAt: comment.UpdatedAt,
-			Author: IPost.Author{
-				ID:        author.ID,
-				Name:      author.Name,
-				AvatarUrl: author.AvatarUrl,
-			},
 		},
 	})
 }

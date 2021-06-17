@@ -6,8 +6,8 @@ import (
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/models"
+	IPost "f-discover/post/interfaces"
 	"f-discover/services"
-	"time"
 
 	"cloud.google.com/go/firestore"
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -16,13 +16,6 @@ import (
 
 type UpdateCommentDTO struct {
 	Content string `json:"content"`
-}
-
-type UpdateCommentResponse struct {
-	ID        string    `json:"id"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func UpdateComment(ctx iris.Context) {
@@ -66,7 +59,6 @@ func UpdateComment(ctx iris.Context) {
 	}
 
 	comment.Content = body.Content
-	comment.UpdatedAt = time.Now()
 
 	_, _ = postsCollection.Doc(postID).Update(context.Background(), []firestore.Update{
 		{
@@ -77,11 +69,10 @@ func UpdateComment(ctx iris.Context) {
 
 	ctx.JSON(interfaces.ISuccess{
 		Message: "Success",
-		Data: UpdateCommentResponse{
+		Data: IPost.CommentWithoutAuthor{
 			ID:        comment.ID,
 			Content:   comment.Content,
 			CreatedAt: comment.CreatedAt,
-			UpdatedAt: comment.UpdatedAt,
 		},
 	})
 }
