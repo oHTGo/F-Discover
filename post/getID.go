@@ -3,6 +3,7 @@ package post
 import (
 	"f-discover/instance"
 	"f-discover/interfaces"
+	"f-discover/location"
 	"f-discover/models"
 	IPost "f-discover/post/interfaces"
 	"f-discover/services"
@@ -29,15 +30,18 @@ func GetID(ctx iris.Context) {
 	dsnap.DataTo(&author)
 
 	res := IPost.Info{
-		ID:      post.ID,
-		Content: post.Content,
-		Images:  post.Images,
-		Videos:  post.Videos,
-		Likes:   len(post.Likes),
+		ID:        post.ID,
+		Content:   post.Content,
+		VideoUrl:  post.VideoUrl,
+		Likes:     len(post.Likes),
+		Comments:  len(post.Comments),
+		Location:  location.GetName(post.Location),
+		CreatedAt: post.CreatedAt,
 		Author: IPost.Author{
 			ID:        author.ID,
 			Name:      author.Name,
 			AvatarUrl: author.AvatarUrl,
+			Job:       author.Job,
 		},
 	}
 

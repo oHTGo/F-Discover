@@ -16,8 +16,10 @@ require (
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kataras/iris/v12 v12.2.0-alpha2.0.20210427211137-fa175eb84754
 	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
-	golang.org/x/tools v0.1.1-0.20210504170620-03ebc2c9fca8 // indirect
+	golang.org/x/text v0.3.6
+	golang.org/x/tools v0.1.3-0.20210608163600-9ed039809d4c // indirect
 	google.golang.org/api v0.45.0
 )

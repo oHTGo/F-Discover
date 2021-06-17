@@ -1,9 +1,15 @@
 version: '3.9'
 services: 
     api:
-        container_name: API_F-Discover
-        build: .
-        env_file: .env
         ports:
             - ${PORT}:${PORT}
         working_dir: /app/
+    docs:
+        image: swaggerapi/swagger-ui
+        container_name: docs_f-discover
+        ports:
+            - "${PORT_DOCS}:8080"
+        volumes:
+            - ./docs.yaml:/docs.yaml
+        environment:
+            SWAGGER_JSON: /docs.yaml

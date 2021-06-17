@@ -1,0 +1,9 @@
+version: '3.9'
+services:
+    api:
+        container_name: api_f-discover_prod
+        image: api_f-discover_prod:latest
+        build:
+            context: .
+            target: production
+            dockerfile: ./Dockerfile

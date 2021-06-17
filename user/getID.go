@@ -26,7 +26,10 @@ func GetID(ctx iris.Context) {
 	res := IUser.Info{
 		ID:        user.ID,
 		Name:      user.Name,
+		CoverUrl:  user.CoverUrl,
 		AvatarUrl: user.AvatarUrl,
+		Job:       user.Job,
+		Quote:     user.Quote,
 		Following: len(user.Following),
 		Followers: len(user.Followers),
 	}

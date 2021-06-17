@@ -10,7 +10,7 @@ import (
 	"cloud.google.com/go/storage"
 )
 
-func UploadFile(filePath string, object string) (string, error) {
+func UploadFileStorage(filePath string, object string) (string, error) {
 	client := services.GetInstance().StorageClient
 	bucket := services.GetInstance().StorageBucket
 

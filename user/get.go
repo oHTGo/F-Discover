@@ -5,18 +5,15 @@ import (
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/models"
-	"f-discover/services"
 	IUser "f-discover/user/interfaces"
 
 	"github.com/kataras/iris/v12"
 )
 
 func Get(ctx iris.Context) {
-	usersCollection := services.GetInstance().StoreClient.Collection("users")
+	currentUser := helpers.GetCurrentUser(ctx)
 
-	id := helpers.GetCurrentUserID(ctx)
-
-	dsnap, err := usersCollection.Doc(id).Get(instance.CtxBackground)
+	dsnap, err := currentUser.Reference.Get(instance.CtxBackground)
 	if err != nil {
 		ctx.StopWithJSON(iris.StatusInternalServerError, interfaces.IFail{Message: "Get profile failed"})
 		return
@@ -28,7 +25,10 @@ func Get(ctx iris.Context) {
 	res := IUser.Info{
 		ID:        user.ID,
 		Name:      user.Name,
+		CoverUrl:  user.CoverUrl,
 		AvatarUrl: user.AvatarUrl,
+		Job:       user.Job,
+		Quote:     user.Quote,
 		Following: len(user.Following),
 		Followers: len(user.Followers),
 	}

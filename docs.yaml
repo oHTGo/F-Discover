@@ -9,6 +9,10 @@ tags:
     description: Authentication endpoint
   - name: User
     description: User endpoint
+  - name: Post
+    description: Post endpoint
+  - name: Location
+    description: Location endpoint
 paths:
   /authentication:
     post:
@@ -21,9 +25,9 @@ paths:
             schema:
               type: object
               properties:
-                type: 
+                type:
                   type: string
-                  description: Choice provider (firebase or zalo)
+                  description: Choice provider (Firebase or Zalo)
                   example: firebase
                 token:
                   type: string
@@ -73,7 +77,7 @@ paths:
               example:
                 message: Get profile failed
         "401":
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: "#/components/responses/UnauthorizedError"
     put:
       security:
         - BearerToken: []
@@ -101,7 +105,7 @@ paths:
                 data:
                   name: Luong Gia Huy
         "401":
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: "#/components/responses/UnauthorizedError"
         "400":
           description: Bad request
           content:
@@ -120,6 +124,8 @@ paths:
                     message: Have validation error
                     errors:
                       name: cannot be blank
+                      quote: cannot be blank
+                      job: cannot be blank
   /user/upload-avatar:
     post:
       security:
@@ -134,7 +140,6 @@ paths:
               type: object
               properties:
                 avatar:
-                  type: string
                   format: binary
       responses:
         "200":
@@ -148,7 +153,43 @@ paths:
                 data:
                   avatarUrl: "https://abc.com/avatar/Pbv9kN0dN2V2CeEdKql5gLQaNqk1.jpg"
         "401":
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: "#/components/responses/UnauthorizedError"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: Upload avatar failed
+  /user/upload-cover:
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - "User"
+      summary: "Upload and update cover"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                cover:
+                  format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+                data:
+                  coverUrl: "https://abc.com/cover/Pbv9kN0dN2V2CeEdKql5gLQaNqk1.jpg"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
         "400":
           description: Bad request
           content:
@@ -159,8 +200,6 @@ paths:
                 message: Upload avatar failed
   /user/{id}:
     get:
-      security:
-        - BearerToken: []
       summary: Get user by ID
       tags:
         - "User"
@@ -181,17 +220,35 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/User"
-        "401":
-          $ref: '#/components/responses/UnauthorizedError'
         "404":
-          description: Not found
+          $ref: "#/components/responses/NotFoundError"
+  /user/{id}/follow:
+    get:
+      security:
+        - BearerToken: []
+      summary: Check follow user by ID
+      tags:
+        - "User"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          example: "Pbv9kN0dN2V2CeEdKql5gLQaNqk1"
+          required: true
+      responses:
+        "200":
+          description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/Success"
               example:
-                message: User is inexistent
-  /user/{id}/follow:
+                message: Success
+                data:
+                  followed: true
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
     post:
       security:
         - BearerToken: []
@@ -215,7 +272,9 @@ paths:
               example:
                 message: Success
         "401":
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
         "400":
           description: Bad request
           content:
@@ -224,8 +283,7 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: Current user has followed this user
-  /user/{id}/unfollow:
-    post:
+    delete:
       security:
         - BearerToken: []
       summary: Unfollow user by ID
@@ -248,7 +306,9 @@ paths:
               example:
                 message: Success
         "401":
-          $ref: '#/components/responses/UnauthorizedError'
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
         "400":
           description: Bad request
           content:
@@ -257,20 +317,724 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: Current user has not followed this user
+  /user/suggest:
+    get:
+      summary: Get suggest users
+      tags:
+        - "User"
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: number
+          example: 5
+          description: Limit number of suggested users
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+  /post:
+    post:
+      security:
+        - BearerToken: []
+      summary: Create new post
+      tags:
+        - "Post"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "I love Ha Noi"
+                location:
+                  type: string
+                  description: Location ID (get by location endpoint)
+                  example: "024"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Post"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+  /post/{id}:
+    get:
+      summary: Get post by ID
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: id
+          description: ID of post
+          schema:
+            type: string
+            example: "mjsUGjpPDQni6O9AV6t7"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Post"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+    put:
+      security:
+        - BearerToken: []
+      summary: Update post by ID
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: id
+          description: ID of post
+          schema:
+            type: string
+            example: "mjsUGjpPDQni6O9AV6t7"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+                - location
+              properties:
+                content:
+                  type: string
+                  example: "I love Sai Gon"
+                location:
+                  type: string
+                  description: Location ID
+                  example: "024"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+                data:
+                  content: "I love Sai Gon"
+                  location: "Thành phố Hồ Chí Minh"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+    delete:
+      summary: Delete post by ID
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: id
+          description: ID of post
+          schema:
+            type: string
+            example: "mjsUGjpPDQni6O9AV6t7"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+  /post/{id}/upload-video:
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - "Post"
+      summary: "Upload and update video of post"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                video:
+                  format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+                data:
+                  id: "3v3BMJ2lkTOgcB7QWPWn"
+                  videoUrl: "https://abc.com/posts/3v3BMJ2lkTOgcB7QWPWn/C7muBI7djQ9UkBGu843UKnN2RRLltG2E.mp4"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: Upload video failed
+  /post/{id}/like:
+    get:
+      security:
+        - BearerToken: []
+      summary: Check like post by ID
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          example: "Pbv9kN0dN2V2CeEdKql5gLQaNqk1"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+                data:
+                  liked: true
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+    post:
+      security:
+        - BearerToken: []
+      summary: Like post by ID
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          example: "Pbv9kN0dN2V2CeEdKql5gLQaNqk1"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: Current user has liked this post
+    delete:
+      security:
+        - BearerToken: []
+      summary: Unlike post by ID
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          example: "Pbv9kN0dN2V2CeEdKql5gLQaNqk1"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: Current user has not liked this post
+  /post/{postId}/comment/:
+    get:
+      summary: Get all comment of post
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: postId
+          description: ID of post
+          schema:
+            type: string
+            example: "mjsUGjpPDQni6O9AV6t7"
+          required: true
+        - in: query
+          name: page
+          schema:
+            type: number
+          example: 1
+          description: Page number of comments
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: number
+          example: 5
+          description: Limit number of comments
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Comment"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+    post:
+      security:
+        - BearerToken: []
+      summary: Create comment of post
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: postId
+          description: ID of post
+          schema:
+            type: string
+            example: "mjsUGjpPDQni6O9AV6t7"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "I love Sai Gon"
+              required:
+                - content
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+                data:
+                  id: "123basdGjpPDQni6O9AV6t7"
+                  content: "I love Sai Gon"
+                  createdAt: "2021-06-16T18:13:24.262386Z"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+  /post/{postId}/comment/{commentId}:
+    get:
+      summary: Get comment by ID
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: postId
+          description: ID of post
+          schema:
+            type: string
+            example: "mjsUGjpPDQni6O9AV6t7"
+          required: true
+        - in: path
+          name: commentId
+          description: ID of comment
+          schema:
+            type: string
+            example: "123basdGjpPDQni6O9AV6t7"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+                data:
+                  id: "123basdGjpPDQni6O9AV6t7"
+                  content: "I love Sai Gon"
+                  createdAt: "2021-06-16T18:13:24.262386Z"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+    put:
+      security:
+        - BearerToken: []
+      summary: Update comment by ID
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: postId
+          description: ID of post
+          schema:
+            type: string
+            example: "mjsUGjpPDQni6O9AV6t7"
+          required: true
+        - in: path
+          name: commentId
+          description: ID of comment
+          schema:
+            type: string
+            example: "123basdGjpPDQni6O9AV6t7"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "I love Sai Gon"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                message: Success
+                data:
+                  id: "123basdGjpPDQni6O9AV6t7"
+                  content: "I love Sai Gon"
+                  createdAt: "2021-06-16T18:13:24.262386Z"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+    delete:
+      security:
+        - BearerToken: []
+      summary: Delete comment by ID
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: postId
+          description: ID of post
+          schema:
+            type: string
+            example: "mjsUGjpPDQni6O9AV6t7"
+          required: true
+        - in: path
+          name: commentId
+          description: ID of comment
+          schema:
+            type: string
+            example: "123basdGjpPDQni6O9AV6t7"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+  /post/user/{id}:
+    get:
+      summary: Get all post of user
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: id
+          description: ID of user
+          schema:
+            type: string
+            example: "mjsUGjpPDQni6O9AV6t7"
+          required: true
+        - in: query
+          name: page
+          schema:
+            type: number
+          example: 1
+          description: Page number of posts
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: number
+          example: 5
+          description: Limit number of posts
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PostWithoutAuthor"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+  /post/location/{id}:
+    get:
+      summary: Get all post of location
+      tags:
+        - "Post"
+      parameters:
+        - in: path
+          name: id
+          description: ID of location
+          schema:
+            type: string
+            example: "mjsUGjpPDQni6O9AV6t7"
+          required: true
+        - in: query
+          name: page
+          schema:
+            type: number
+          example: 1
+          description: Page number of posts
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: number
+          example: 5
+          description: Limit number of posts
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PostWithAuthor"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+  /post/following/{id}:
+    get:
+      security:
+        - BearerToken: []
+      summary: Get all post of user following
+      tags:
+        - "Post"
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+          example: 1
+          description: Page number of posts
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: number
+          example: 5
+          description: Limit number of posts
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PostWithAuthor"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+  /post/suggest:
+    get:
+      summary: Get suggest posts
+      tags:
+        - "Post"
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+          example: 1
+          description: Page number of posts
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: number
+          example: 5
+          description: Limit number of posts
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PostWithAuthor"
+  /location:
+    get:
+      tags:
+        - "Location"
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          example: "Ha Noi"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    items:
+                      $ref: "#/components/schemas/Location"
+  /search:
+    get:
+      tags:
+        - "Search"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+                properties:
+                  data:
+                    items:
+                      $ref: "#/components/schemas/Search"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
 components:
   securitySchemes:
     BearerToken:
       type: http
       scheme: bearer
-      bearerFormat: JWTW
+      bearerFormat: JWT
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
       content:
-        text/plain:
+        application/json:
           schema:
-            type: string
-            example: token is invalid
+            type: object
+            properties:
+              message:
+                type: string
+                example: Token is invalid
+    NotFoundError:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            message: The specified resource was not found
+    BadRequestError:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/Error"
+          examples:
+            ErrorParse:
+              summary: Error parse body/query
+              value:
+                message: Body/Query is bad request
+            ErrorValidation:
+              summary: Error validation
+              value:
+                message: Have validation error
+                errors:
+                  nameField: Detail error
   schemas:
     Success:
       type: object
@@ -279,7 +1043,9 @@ components:
           type: string
           example: "Success"
         data:
-          type: object
+          oneOf:
+            - type: object
+            - type: array
       required:
         - message
     Error:
@@ -300,12 +1066,138 @@ components:
         name:
           type: string
           example: "Nguyen Nhat Huy"
+        coverUrl:
+          type: string
+          example: "https://abc.com/cover/Pbv9kN0dN2V2CeEdKql5gLQaNqk1.jpg"
         avatarUrl:
           type: string
           example: "https://abc.com/avatar/Pbv9kN0dN2V2CeEdKql5gLQaNqk1.jpg"
+        job:
+          type: string
+          example: "My job"
+        quote:
+          type: string
+          example: "My quote"
         following:
           type: number
           example: 10
         followers:
           type: number
           example: 200
+    Author:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "Pbv9kN0dN2V2CeEdKql5gLQaNqk1"
+        name:
+          type: string
+          example: "Nguyen Nhat Huy"
+        avatarUrl:
+          type: string
+          example: "https://abc.com/avatar/Pbv9kN0dN2V2CeEdKql5gLQaNqk1.jpg"
+        job:
+          type: string
+          example: "My job"
+    PostWithAuthor:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "mjsUGjpPDQni6O9AV6t7"
+        content:
+          type: string
+          example: "I love Ha Noi"
+        videoUrl:
+          type: string
+          default: null
+          example: "https://abc.com/posts/mjsUGjpPDQni6O9AV6t7/6UyeyYaR4nvzAyHHOWxTdXvZPJLjFrTj.mp4"
+        location:
+          type: string
+          description: Name of location
+          example: "Hà Nội"
+        likes:
+          type: number
+          example: 123
+        comments:
+          type: number
+          example: 321
+        author:
+          $ref: "#/components/schemas/Author"
+    PostWithoutAuthor:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "mjsUGjpPDQni6O9AV6t7"
+        content:
+          type: string
+          example: "I love Ha Noi"
+        videoUrl:
+          type: string
+          default: null
+          example: "https://abc.com/posts/mjsUGjpPDQni6O9AV6t7/6UyeyYaR4nvzAyHHOWxTdXvZPJLjFrTj.mp4"
+        location:
+          type: string
+          description: Name of location
+          example: "Hà Nội"
+        likes:
+          type: number
+          example: 123
+        comments:
+          type: number
+          example: 321
+    CommentWithAuthor:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "62lw8e2uKDL99O0iLOAK"
+        content:
+          type: string
+          example: "My lover"
+        createdAt:
+          type: string
+          format: time
+          example: "2021-06-16T18:13:24.262386Z"
+        author:
+          $ref: "#/components/schemas/Author"
+    CommentWithoutAuthor:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "62lw8e2uKDL99O0iLOAK"
+        content:
+          type: string
+          example: "My lover"
+        createdAt:
+          type: string
+          format: time
+          example: "2021-06-16T18:13:24.262386Z"
+    Location:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "024"
+        name:
+          type: string
+          example: "Hà Nội"
+    Search:
+      type: object
+      properties:
+        type:
+          description: Type of result (user/location)
+          type: string
+          example: "location"
+        result:
+          type: object
+          description: Detail result
+          properties:
+            id:
+              type: string
+              example: "0204"
+            name:
+              type: string
+              example: "Bắc Giang"

@@ -1,24 +1,24 @@
 package IPost
 
-type Author struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	AvatarUrl string `json:"avatar_url"`
-}
+import "time"
 
 type Info struct {
-	ID      string   `json:"id"`
-	Content string   `json:"content"`
-	Images  []string `json:"images"`
-	Videos  []string `json:"videos"`
-	Likes   int      `json:"likes"`
-	Author  Author   `json:"author"`
+	ID        string    `json:"id"`
+	Content   string    `json:"content"`
+	VideoUrl  string    `json:"videoUrl"`
+	Likes     int       `json:"likes"`
+	Comments  int       `json:"comments"`
+	Author    Author    `json:"author"`
+	Location  string    `json:"location"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type InfoWithoutAuthor struct {
-	ID      string   `json:"id"`
-	Content string   `json:"content"`
-	Images  []string `json:"images"`
-	Videos  []string `json:"videos"`
-	Likes   int      `json:"likes"`
+	ID        string    `json:"id"`
+	Content   string    `json:"content"`
+	VideoUrl  string    `json:"videoUrl"`
+	Likes     int       `json:"likes"`
+	Comments  int       `json:"comments"`
+	Location  string    `json:"location"`
+	CreatedAt time.Time `json:"createdAt"`
 }
