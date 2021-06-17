@@ -14,7 +14,7 @@ import (
 )
 
 type Result struct {
-	ID   string `json:"ID"`
+	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
