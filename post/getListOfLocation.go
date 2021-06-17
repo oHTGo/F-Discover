@@ -19,10 +19,6 @@ type GetListOfLocationQuery struct {
 	Limit int `url:"limit" json:"limit"`
 }
 
-type GetListOfLocationResponse struct {
-	Posts []IPost.Info `json:"posts"`
-}
-
 func GetListOfLocation(ctx iris.Context) {
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
 
@@ -79,8 +75,6 @@ func GetListOfLocation(ctx iris.Context) {
 
 	ctx.JSON(interfaces.ISuccess{
 		Message: "Success",
-		Data: GetListOfLocationResponse{
-			Posts: posts,
-		},
+		Data:    posts,
 	})
 }

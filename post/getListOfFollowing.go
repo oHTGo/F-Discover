@@ -20,10 +20,6 @@ type GetListOfFollowingQuery struct {
 	Limit int `url:"limit" json:"limit"`
 }
 
-type GetListOfFollowingResponse struct {
-	Posts []IPost.Info `json:"posts"`
-}
-
 func GetListOfFollowing(ctx iris.Context) {
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
 	usersCollection := services.GetInstance().StoreClient.Collection("users")
@@ -85,8 +81,6 @@ func GetListOfFollowing(ctx iris.Context) {
 
 	ctx.JSON(interfaces.ISuccess{
 		Message: "Success",
-		Data: GetListOfFollowingResponse{
-			Posts: posts,
-		},
+		Data:    posts,
 	})
 }
