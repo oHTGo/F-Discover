@@ -29,6 +29,10 @@ func Delete(ctx iris.Context) {
 		return
 	}
 
+	if post.VideoUrl != "" {
+		helpers.DeleteFileStorage(post.VideoUrl)
+	}
+
 	_, _ = postsCollection.Doc(postID).Delete(instance.CtxBackground)
 
 	ctx.JSON(interfaces.ISuccessNoData{
