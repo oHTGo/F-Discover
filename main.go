@@ -66,33 +66,37 @@ func main() {
 		userRouter.Put("/", j.Serve, user.UpdateProfile)
 		userRouter.Post("/upload-avatar", j.Serve, user.UploadAvatar)
 		userRouter.Post("/upload-cover", j.Serve, user.UploadCover)
+
 		userRouter.Get("/{id}", user.GetID)
+
 		userRouter.Get("/{id}/follow", j.Serve, user.CheckFollow)
 		userRouter.Post("/{id}/follow", j.Serve, user.Follow)
-		userRouter.Post("/{id}/unfollow", j.Serve, user.Unfollow)
+		userRouter.Delete("/{id}/follow", j.Serve, user.Unfollow)
 
 		userRouter.Get("/suggest", user.Suggest)
 	}
 
-	postRouter := api.Party("post", j.Serve)
+	postRouter := api.Party("post")
 	{
-		postRouter.Post("/", post.Create)
+		postRouter.Post("/", j.Serve, post.Create)
 		postRouter.Get("/{id}", post.GetID)
-		postRouter.Put("/{id}", post.Update)
-		postRouter.Post("/{id}/upload-video", post.UploadVideo)
-		postRouter.Get("/{id}/like", post.CheckLike)
-		postRouter.Post("/{id}/like", post.Like)
-		postRouter.Post("/{id}/unlike", post.Unlike)
-		postRouter.Delete("/{id}", post.Delete)
+		postRouter.Put("/{id}", j.Serve, post.Update)
+		postRouter.Post("/{id}/upload-video", j.Serve, post.UploadVideo)
+		postRouter.Delete("/{id}", j.Serve, post.Delete)
 
-		postRouter.Post("/{id}/comment", post.CreatComment)
+		postRouter.Get("/{id}/like", j.Serve, post.CheckLike)
+		postRouter.Post("/{id}/like", j.Serve, post.Like)
+		postRouter.Delete("/{id}/like", j.Serve, post.Unlike)
+
+		postRouter.Post("/{id}/comment", j.Serve, post.CreatComment)
+		postRouter.Get("/{id}/comment/", post.GetAllComment)
 		postRouter.Get("/{id}/comment/{commentID}", post.GetComment)
-		postRouter.Put("/{id}/comment/{commentID}", post.UpdateComment)
-		postRouter.Delete("/{id}/comment/{commentID}", post.DeleteComment)
+		postRouter.Put("/{id}/comment/{commentID}", j.Serve, post.UpdateComment)
+		postRouter.Delete("/{id}/comment/{commentID}", j.Serve, post.DeleteComment)
 
 		postRouter.Get("/user/{id}", post.GetListOfUser)
 		postRouter.Get("/location/{id}", post.GetListOfLocation)
-		postRouter.Get("/following", post.GetListOfFollowing)
+		postRouter.Get("/following", j.Serve, post.GetListOfFollowing)
 		postRouter.Get("/suggest", post.Suggest)
 	}
 
