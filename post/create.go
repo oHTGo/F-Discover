@@ -44,6 +44,8 @@ func Create(ctx iris.Context) {
 		return
 	}
 
+	helpers.EscapeString(&body)
+
 	currentUser := helpers.GetCurrentUser(ctx)
 
 	dsnap, _ := currentUser.Reference.Get(instance.CtxBackground)
