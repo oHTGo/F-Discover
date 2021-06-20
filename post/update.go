@@ -40,6 +40,8 @@ func Update(ctx iris.Context) {
 		return
 	}
 
+	helpers.EscapeString(&body)
+
 	postID := ctx.Params().Get("id")
 	dsnap, err := postsCollection.Doc(postID).Get(instance.CtxBackground)
 	if err != nil {

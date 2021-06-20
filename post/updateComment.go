@@ -34,6 +34,8 @@ func UpdateComment(ctx iris.Context) {
 		return
 	}
 
+	helpers.EscapeString(&body)
+
 	currentUser := helpers.GetCurrentUser(ctx)
 
 	postID := ctx.Params().Get("id")

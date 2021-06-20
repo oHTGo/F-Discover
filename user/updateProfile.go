@@ -43,27 +43,29 @@ func UpdateProfile(ctx iris.Context) {
 		return
 	}
 
+	helpers.EscapeString(&body)
+
 	_, _ = usersCollection.Doc(currenUser.ID).Update(instance.CtxBackground, []firestore.Update{
 		{
 			Path:  "name",
-			Value: string(body.Name),
+			Value: body.Name,
 		},
 		{
 			Path:  "quote",
-			Value: string(body.Quote),
+			Value: body.Quote,
 		},
 		{
 			Path:  "job",
-			Value: string(body.Job),
+			Value: body.Job,
 		},
 	})
 
 	ctx.JSON(interfaces.ISuccess{
 		Message: "Success",
 		Data: NewProfile{
-			Name:  string(body.Name),
-			Quote: string(body.Quote),
-			Job:   string(body.Job),
+			Name:  body.Name,
+			Quote: body.Quote,
+			Job:   body.Job,
 		},
 	})
 }
