@@ -11,8 +11,9 @@ import (
 )
 
 type SuggestResponse struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	AvatarUrl string `json:"avatarUrl"`
 }
 
 type SuggestQuery struct {
@@ -44,18 +45,22 @@ func Suggest(ctx iris.Context) {
 		for _, user := range users {
 			id := user.Ref.ID
 			name, _ := user.DataAt("name")
+			avatarUrl, _ := user.DataAt("avatarUrl")
 			suggestedUsers = append(suggestedUsers, SuggestResponse{
-				ID:   id,
-				Name: name.(string),
+				ID:        id,
+				Name:      name.(string),
+				AvatarUrl: avatarUrl.(string),
 			})
 		}
 	} else {
 		for _, position := range rand.Perm(len(users) - 1)[:query.Limit] {
 			id := users[position].Ref.ID
 			name, _ := users[position].DataAt("name")
+			avatarUrl, _ := users[position].DataAt("avatarUrl")
 			suggestedUsers = append(suggestedUsers, SuggestResponse{
-				ID:   id,
-				Name: name.(string),
+				ID:        id,
+				Name:      name.(string),
+				AvatarUrl: avatarUrl.(string),
 			})
 		}
 	}
