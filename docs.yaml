@@ -941,6 +941,13 @@ paths:
           example: 5
           description: Limit number of posts
           required: true
+        - in: query
+          name: time
+          schema:
+            type: number
+          example: 5
+          description: Timestamp of posts
+          required: true
       responses:
         "200":
           description: OK
