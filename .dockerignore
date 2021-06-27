@@ -1,4 +1,8 @@
-go.sum
+.devcontainer/
+tmp/
 
+go.sum
+.air.toml
 Dockerfile
 .dockerignore
+*.log
