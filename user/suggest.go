@@ -3,6 +3,7 @@ package user
 import (
 	"f-discover/instance"
 	"f-discover/interfaces"
+	"f-discover/models"
 	"f-discover/services"
 	"math/rand"
 
@@ -13,7 +14,12 @@ import (
 type SuggestResponse struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
+	CoverUrl  string `json:"coverUrl"`
 	AvatarUrl string `json:"avatarUrl"`
+	Job       string `json:"job"`
+	Quote     string `json:"quote"`
+	Following int    `json:"following"`
+	Followers int    `json:"followers"`
 }
 
 type SuggestQuery struct {
@@ -43,24 +49,32 @@ func Suggest(ctx iris.Context) {
 
 	if len(users) <= query.Limit {
 		for _, user := range users {
-			id := user.Ref.ID
-			name, _ := user.DataAt("name")
-			avatarUrl, _ := user.DataAt("avatarUrl")
+			var userData models.User
+			user.DataTo(&userData)
 			suggestedUsers = append(suggestedUsers, SuggestResponse{
-				ID:        id,
-				Name:      name.(string),
-				AvatarUrl: avatarUrl.(string),
+				ID:        userData.ID,
+				Name:      userData.Name,
+				CoverUrl:  userData.CoverUrl,
+				AvatarUrl: userData.AvatarUrl,
+				Job:       userData.Job,
+				Quote:     userData.Quote,
+				Following: len(userData.Following),
+				Followers: len(userData.Followers),
 			})
 		}
 	} else {
 		for _, position := range rand.Perm(len(users) - 1)[:query.Limit] {
-			id := users[position].Ref.ID
-			name, _ := users[position].DataAt("name")
-			avatarUrl, _ := users[position].DataAt("avatarUrl")
+			var userData models.User
+			users[position].DataTo(&userData)
 			suggestedUsers = append(suggestedUsers, SuggestResponse{
-				ID:        id,
-				Name:      name.(string),
-				AvatarUrl: avatarUrl.(string),
+				ID:        userData.ID,
+				Name:      userData.Name,
+				CoverUrl:  userData.CoverUrl,
+				AvatarUrl: userData.AvatarUrl,
+				Job:       userData.Job,
+				Quote:     userData.Quote,
+				Following: len(userData.Following),
+				Followers: len(userData.Followers),
 			})
 		}
 	}
