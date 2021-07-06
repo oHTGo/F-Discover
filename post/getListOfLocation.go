@@ -57,13 +57,14 @@ func GetListOfLocation(ctx iris.Context) {
 		dsnap.DataTo(&author)
 
 		posts = append(posts, IPost.Info{
-			ID:        post.ID,
-			Content:   post.Content,
-			VideoUrl:  post.VideoUrl,
-			Likes:     len(post.Likes),
-			Comments:  len(post.Comments),
-			Location:  location.GetName(post.Location),
-			CreatedAt: post.CreatedAt,
+			ID:           post.ID,
+			Content:      post.Content,
+			ThumbnailUrl: post.ThumbnailUrl,
+			VideoUrl:     post.VideoUrl,
+			Likes:        len(post.Likes),
+			Comments:     len(post.Comments),
+			Location:     location.GetName(post.Location),
+			CreatedAt:    post.CreatedAt,
 			Author: IPost.Author{
 				ID:        author.ID,
 				Name:      author.Name,

@@ -18,6 +18,7 @@ require (
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.6.4 // indirect
+	github.com/vansante/go-ffprobe v1.1.0
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	golang.org/x/text v0.3.6
 	golang.org/x/tools v0.1.3-0.20210608163600-9ed039809d4c // indirect
