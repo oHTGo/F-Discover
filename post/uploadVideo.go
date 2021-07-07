@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"cloud.google.com/go/firestore"
 	"github.com/kataras/iris/v12"
@@ -56,7 +57,7 @@ func UploadVideo(ctx iris.Context) {
 		return
 	}
 	//postID + "/" +
-	newNameVideo := helpers.RandomString(32) + filepath.Ext(files[0].Filename)
+	newNameVideo := helpers.RandomString(32) + strings.ToLower(filepath.Ext(files[0].Filename))
 	pathLocalVideo := filepath.Join("./uploads", files[0].Filename)
 
 	if !helpers.IsVideo(pathLocalVideo) {
@@ -74,7 +75,7 @@ func UploadVideo(ctx iris.Context) {
 		return
 	}
 
-	newPathLocalVideo := filepath.Join("./uploads", helpers.RandomString(32)+filepath.Ext(files[0].Filename))
+	newPathLocalVideo := filepath.Join("./uploads", helpers.RandomString(32)+strings.ToLower(filepath.Ext(files[0].Filename)))
 	helpers.RenameFile(pathLocalVideo, newPathLocalVideo)
 
 	secondToGenerateThumbnail := int(helpers.GetDurationVideo(newPathLocalVideo) / 2)

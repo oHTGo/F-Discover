@@ -6,6 +6,7 @@ import (
 	"f-discover/interfaces"
 	"f-discover/services"
 	"path/filepath"
+	"strings"
 
 	"cloud.google.com/go/firestore"
 	"github.com/kataras/iris/v12"
@@ -33,7 +34,7 @@ func UploadAvatar(ctx iris.Context) {
 
 	currentUser := helpers.GetCurrentUser(ctx)
 
-	newNameFile := currentUser.ID + filepath.Ext(files[0].Filename)
+	newNameFile := currentUser.ID + strings.ToLower(filepath.Ext(files[0].Filename))
 	dest := filepath.Join("./uploads", files[0].Filename)
 
 	if !helpers.IsImage(dest) {
