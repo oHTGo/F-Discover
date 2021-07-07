@@ -59,13 +59,14 @@ func GetListOfUser(ctx iris.Context) {
 		doc.DataTo(&post)
 
 		posts = append(posts, IPost.InfoWithoutAuthor{
-			ID:        post.ID,
-			Content:   post.Content,
-			VideoUrl:  post.VideoUrl,
-			Likes:     len(post.Likes),
-			Comments:  len(post.Comments),
-			Location:  location.GetName(post.Location),
-			CreatedAt: post.CreatedAt,
+			ID:           post.ID,
+			Content:      post.Content,
+			ThumbnailUrl: post.ThumbnailUrl,
+			VideoUrl:     post.VideoUrl,
+			Likes:        len(post.Likes),
+			Comments:     len(post.Comments),
+			Location:     location.GetName(post.Location),
+			CreatedAt:    post.CreatedAt,
 		})
 	}
 

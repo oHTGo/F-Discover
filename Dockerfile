@@ -1,5 +1,8 @@
 FROM golang:1.15-buster AS development
 
+RUN apt update
+RUN apt install -y ffmpeg
+
 WORKDIR /app
 COPY go.mod ./
 
@@ -14,6 +17,8 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o app .
 CMD go run main.go
 
 FROM alpine:latest as production
+
+RUN apk add ffmpeg
 
 WORKDIR /app
 COPY . .

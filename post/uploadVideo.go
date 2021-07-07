@@ -6,15 +6,19 @@ import (
 	"f-discover/interfaces"
 	"f-discover/models"
 	"f-discover/services"
+	"os/exec"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"cloud.google.com/go/firestore"
 	"github.com/kataras/iris/v12"
 )
 
 type NewVideo struct {
-	ID       string `json:"id"`
-	VideoUrl string `json:"videoUrl"`
+	ID           string `json:"id"`
+	ThumbnailUrl string `json:"thumbnailUrl"`
+	VideoUrl     string `json:"videoUrl"`
 }
 
 func UploadVideo(ctx iris.Context) {
@@ -52,42 +56,66 @@ func UploadVideo(ctx iris.Context) {
 		})
 		return
 	}
+	//postID + "/" +
+	newNameVideo := helpers.RandomString(32) + strings.ToLower(filepath.Ext(files[0].Filename))
+	pathLocalVideo := filepath.Join("./uploads", files[0].Filename)
 
-	newNameFile := postID + "/" + helpers.RandomString(32) + filepath.Ext(files[0].Filename)
-	dest := filepath.Join("./uploads", files[0].Filename)
-
-	if !helpers.IsVideo(dest) {
+	if !helpers.IsVideo(pathLocalVideo) {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
 			Message: "Type of file not supported",
 		})
 		return
 	}
 
-	url, err := helpers.UploadFileStorage(dest, "posts/"+newNameFile)
+	videoUrl, err := helpers.UploadFileStorage(pathLocalVideo, "posts/"+postID+"/"+newNameVideo)
 	if err != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
-			Message: "Upload avatar failed",
+			Message: "Upload video failed",
 		})
 		return
+	}
+
+	newPathLocalVideo := filepath.Join("./uploads", helpers.RandomString(32)+strings.ToLower(filepath.Ext(files[0].Filename)))
+	helpers.RenameFile(pathLocalVideo, newPathLocalVideo)
+
+	secondToGenerateThumbnail := int(helpers.GetDurationVideo(newPathLocalVideo) / 2)
+
+	nameThumbnail := helpers.RandomString(32) + ".jpg"
+	pathLocalThumbnail := filepath.Join("./uploads", nameThumbnail)
+	thumbnailUrl := ""
+
+	_, errExec := exec.Command("ffmpeg", "-i", newPathLocalVideo, "-vframes", "1", "-an", "-ss", strconv.Itoa(secondToGenerateThumbnail), pathLocalThumbnail).Output()
+	if errExec == nil {
+		thumbnailUrl, _ = helpers.UploadFileStorage(pathLocalThumbnail, "posts/"+postID+"/"+nameThumbnail)
 	}
 
 	_, _ = postsCollection.Doc(postID).Update(instance.CtxBackground, []firestore.Update{
 		{
 			Path:  "videoUrl",
-			Value: url,
+			Value: videoUrl,
+		},
+		{
+			Path:  "thumbnailUrl",
+			Value: thumbnailUrl,
 		},
 	})
 
+	// Delete old file in storage
 	if post.VideoUrl != "" {
 		helpers.DeleteFileStorage(post.VideoUrl)
 	}
+	if post.ThumbnailUrl != "" {
+		helpers.DeleteFileStorage(post.ThumbnailUrl)
+	}
+
 	helpers.DeleteDir("uploads")
 
 	ctx.JSON(interfaces.ISuccess{
 		Message: "Success",
 		Data: NewVideo{
-			ID:       post.ID,
-			VideoUrl: url,
+			ID:           post.ID,
+			VideoUrl:     videoUrl,
+			ThumbnailUrl: thumbnailUrl,
 		},
 	})
 }
