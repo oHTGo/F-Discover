@@ -24,22 +24,29 @@ type NewVideo struct {
 func UploadVideo(ctx iris.Context) {
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
 
-	postID := ctx.Params().Get("id")
-
-	dsnap, err := postsCollection.Doc(postID).Get(instance.CtxBackground)
-	if err != nil {
-		ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "Post is inexistent"})
-		return
-	}
-
+	var postID string = ctx.Params().Get("id")
 	var post models.Post
-	dsnap.DataTo(&post)
 
-	currentUser := helpers.GetCurrentUser(ctx)
+	if postID != "0" {
+		dsnap, err := postsCollection.Doc(postID).Get(instance.CtxBackground)
+		if err != nil {
+			ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "Post is inexistent"})
+			return
+		}
 
-	if post.Author.ID != currentUser.ID {
-		ctx.StopWithJSON(iris.StatusForbidden, interfaces.IFail{Message: "User is not the author of the post"})
-		return
+		dsnap.DataTo(&post)
+
+		currentUser := helpers.GetCurrentUser(ctx)
+
+		if post.Author.ID != currentUser.ID {
+			ctx.StopWithJSON(iris.StatusForbidden, interfaces.IFail{Message: "User is not the author of the post"})
+			return
+		}
+	} else {
+		postID = postsCollection.NewDoc().ID
+		_, _ = postsCollection.Doc(postID).Set(instance.CtxBackground, map[string]interface{}{
+			"author": helpers.GetCurrentUser(ctx).Reference,
+		})
 	}
 
 	files, err := helpers.UploadFiles(ctx)
@@ -113,7 +120,7 @@ func UploadVideo(ctx iris.Context) {
 	ctx.JSON(interfaces.ISuccess{
 		Message: "Success",
 		Data: NewVideo{
-			ID:           post.ID,
+			ID:           postID,
 			VideoUrl:     videoUrl,
 			ThumbnailUrl: thumbnailUrl,
 		},
