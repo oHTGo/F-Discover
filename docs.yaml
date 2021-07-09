@@ -972,13 +972,7 @@ paths:
     get:
       tags:
         - "Location"
-      parameters:
-        - in: query
-          name: search
-          schema:
-            type: string
-          example: "Ha Noi"
-          required: true
+      summary: Get list of locations
       responses:
         "200":
           description: OK
@@ -994,6 +988,7 @@ paths:
     get:
       tags:
         - "Search"
+      summary: Search user by name or location by name
       responses:
         "200":
           description: OK
