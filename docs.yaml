@@ -476,7 +476,15 @@ paths:
         - BearerToken: []
       tags:
         - "Post"
-      summary: "Upload and update video of post"
+      parameters:
+        - in: path
+          name: id
+          description: ID of post, if the value is 0, then create a new post and update
+          schema:
+            type: string
+            example: "mjsUGjpPDQni6O9AV6t7"
+          required: true
+      summary: "Upload, update video or create  new post"
       requestBody:
         content:
           multipart/form-data:

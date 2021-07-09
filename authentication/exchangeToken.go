@@ -82,7 +82,7 @@ func ExchangeToken(ctx iris.Context) {
 
 	j := jwt.NewTokenWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  user.ID,
-		"exp": time.Now().Unix() + 60*60*24, //set expire time: 24 hours
+		"exp": time.Now().Unix() + 60*60*24*30, //set expire time: 30 days
 	})
 
 	jString, _ := j.SignedString([]byte(env.Get().JWT_SECRET))
