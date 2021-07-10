@@ -26,9 +26,15 @@ func UploadVideo(ctx iris.Context) {
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
 
 	var postID string = ctx.Params().Get("id")
+
+	var isCreated bool = false
+	if postID == "0" {
+		isCreated = true
+	}
+
 	var post models.Post
 
-	if postID != "0" {
+	if !isCreated {
 		dsnap, err := postsCollection.Doc(postID).Get(instance.CtxBackground)
 		if err != nil {
 			ctx.StopWithJSON(iris.StatusNotFound, interfaces.IFail{Message: "Post is inexistent"})
@@ -45,11 +51,6 @@ func UploadVideo(ctx iris.Context) {
 		}
 	} else {
 		postID = postsCollection.NewDoc().ID
-		_, _ = postsCollection.Doc(postID).Set(instance.CtxBackground, map[string]interface{}{
-			"id":        postID,
-			"author":    helpers.GetCurrentUser(ctx).Reference,
-			"createdAt": time.Now(),
-		})
 	}
 
 	files, err := helpers.UploadFiles(ctx)
@@ -66,7 +67,7 @@ func UploadVideo(ctx iris.Context) {
 		})
 		return
 	}
-	//postID + "/" +
+
 	newNameVideo := helpers.RandomString(32) + strings.ToLower(filepath.Ext(files[0].Filename))
 	pathLocalVideo := filepath.Join("./uploads", files[0].Filename)
 
@@ -99,16 +100,26 @@ func UploadVideo(ctx iris.Context) {
 		thumbnailUrl, _ = helpers.UploadFileStorage(pathLocalThumbnail, "posts/"+postID+"/"+nameThumbnail)
 	}
 
-	_, _ = postsCollection.Doc(postID).Update(instance.CtxBackground, []firestore.Update{
-		{
-			Path:  "videoUrl",
-			Value: videoUrl,
-		},
-		{
-			Path:  "thumbnailUrl",
-			Value: thumbnailUrl,
-		},
-	})
+	if !isCreated {
+		_, _ = postsCollection.Doc(postID).Update(instance.CtxBackground, []firestore.Update{
+			{
+				Path:  "videoUrl",
+				Value: videoUrl,
+			},
+			{
+				Path:  "thumbnailUrl",
+				Value: thumbnailUrl,
+			},
+		})
+	} else {
+		_, _ = postsCollection.Doc(postID).Set(instance.CtxBackground, map[string]interface{}{
+			"id":           postID,
+			"author":       helpers.GetCurrentUser(ctx).Reference,
+			"thumbnailUrl": thumbnailUrl,
+			"videoUrl":     videoUrl,
+			"createdAt":    time.Now(),
+		})
+	}
 
 	// Delete old file in storage
 	if post.VideoUrl != "" {
