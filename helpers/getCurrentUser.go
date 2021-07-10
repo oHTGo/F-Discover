@@ -10,8 +10,14 @@ import (
 )
 
 func GetCurrentUser(ctx iris.Context) *interfaces.CurrentUser {
-	id := ctx.Values().Get("jwt").(*jwt.Token).Claims.(jwt.MapClaims)["id"].(string)
-	logger.Info("Access log", "ID user: "+id)
+	var id string
+
+	if ok := ctx.Values().Get("jwt"); ok != nil {
+		id = ok.(*jwt.Token).Claims.(jwt.MapClaims)["id"].(string)
+		logger.Info("Access log", "ID user: "+id)
+	} else {
+		id = "-1"
+	}
 
 	return &interfaces.CurrentUser{
 		ID:        id,
