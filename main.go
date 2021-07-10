@@ -7,6 +7,7 @@ import (
 	"f-discover/interfaces"
 	"f-discover/location"
 	"f-discover/logger"
+	"f-discover/middlewares"
 	"f-discover/post"
 	"f-discover/search"
 	"f-discover/user"
@@ -67,7 +68,7 @@ func main() {
 		userRouter.Post("/upload-avatar", j.Serve, user.UploadAvatar)
 		userRouter.Post("/upload-cover", j.Serve, user.UploadCover)
 
-		userRouter.Get("/{id}", user.GetID)
+		userRouter.Get("/{id}", middlewares.CustomJWTMiddleware(j), user.GetID)
 
 		userRouter.Get("/{id}/follow", j.Serve, user.CheckFollow)
 		userRouter.Post("/{id}/follow", j.Serve, user.Follow)
