@@ -70,7 +70,6 @@ func UploadVideo(ctx iris.Context) {
 
 	newNameVideo := helpers.RandomString(32) + strings.ToLower(filepath.Ext(files[0].Filename))
 	pathLocalVideo := filepath.Join("./uploads", files[0].Filename)
-
 	if !helpers.IsVideo(pathLocalVideo) {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
 			Message: "Type of file not supported",
@@ -78,7 +77,15 @@ func UploadVideo(ctx iris.Context) {
 		return
 	}
 
-	videoUrl, err := helpers.UploadFileStorage(pathLocalVideo, "posts/"+postID+"/"+newNameVideo)
+	newPathLocalVideo := filepath.Join("./uploads", newNameVideo)
+	if _, err := exec.Command("ffmpeg", "-i", pathLocalVideo,
+		"-vcodec", "libx264",
+		"-crf", "28",
+		newPathLocalVideo).Output(); err != nil {
+		newPathLocalVideo = pathLocalVideo
+	}
+
+	videoUrl, err := helpers.UploadFileStorage(newPathLocalVideo, "posts/"+postID+"/"+newNameVideo)
 	if err != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
 			Message: "Upload video failed",
@@ -86,17 +93,18 @@ func UploadVideo(ctx iris.Context) {
 		return
 	}
 
-	newPathLocalVideo := filepath.Join("./uploads", helpers.RandomString(32)+strings.ToLower(filepath.Ext(files[0].Filename)))
-	helpers.RenameFile(pathLocalVideo, newPathLocalVideo)
-
 	secondToGenerateThumbnail := int(helpers.GetDurationVideo(newPathLocalVideo) / 2)
 
 	nameThumbnail := helpers.RandomString(32) + ".jpg"
 	pathLocalThumbnail := filepath.Join("./uploads", nameThumbnail)
 	thumbnailUrl := ""
 
-	_, errExec := exec.Command("ffmpeg", "-i", newPathLocalVideo, "-vframes", "1", "-an", "-ss", strconv.Itoa(secondToGenerateThumbnail), pathLocalThumbnail).Output()
-	if errExec == nil {
+	if _, err := exec.Command("ffmpeg",
+		"-i", newPathLocalVideo,
+		"-vframes", "1",
+		"-an",
+		"-ss", strconv.Itoa(secondToGenerateThumbnail),
+		pathLocalThumbnail).Output(); err == nil {
 		thumbnailUrl, _ = helpers.UploadFileStorage(pathLocalThumbnail, "posts/"+postID+"/"+nameThumbnail)
 	}
 
