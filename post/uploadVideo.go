@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/kataras/iris/v12"
@@ -45,7 +46,9 @@ func UploadVideo(ctx iris.Context) {
 	} else {
 		postID = postsCollection.NewDoc().ID
 		_, _ = postsCollection.Doc(postID).Set(instance.CtxBackground, map[string]interface{}{
-			"author": helpers.GetCurrentUser(ctx).Reference,
+			"id":        postID,
+			"author":    helpers.GetCurrentUser(ctx).Reference,
+			"createdAt": time.Now(),
 		})
 	}
 
