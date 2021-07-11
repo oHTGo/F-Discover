@@ -10,6 +10,9 @@ import (
 )
 
 func UploadFiles(ctx iris.Context) ([]*multipart.FileHeader, error) {
+	// Set max size
+	ctx.SetMaxRequestBodySize(env.Get().MAX_FILE_SIZE * iris.MB)
+
 	// Create dir uploads if it is inexistent
 	CreateDir("uploads")
 

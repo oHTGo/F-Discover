@@ -1,6 +1,7 @@
 package post
 
 import (
+	"f-discover/env"
 	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/interfaces"
@@ -78,10 +79,15 @@ func UploadVideo(ctx iris.Context) {
 	}
 
 	newPathLocalVideo := filepath.Join("./uploads", newNameVideo)
-	if _, err := exec.Command("ffmpeg", "-i", pathLocalVideo,
-		"-vcodec", "libx264",
-		"-crf", "28",
-		newPathLocalVideo).Output(); err != nil {
+
+	if env.Get().VIDEO_COMPRESSION {
+		if _, err := exec.Command("ffmpeg", "-i", pathLocalVideo,
+			"-vcodec", "libx264",
+			"-crf", "28",
+			newPathLocalVideo).Output(); err != nil {
+			newPathLocalVideo = pathLocalVideo
+		}
+	} else {
 		newPathLocalVideo = pathLocalVideo
 	}
 

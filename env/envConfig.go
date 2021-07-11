@@ -12,13 +12,14 @@ import (
 var once sync.Once
 
 type single struct {
-	LOG_MODE        string
-	PORT            string
-	STORAGE_BUCKET  string
-	MAX_FILE_SIZE   int64
-	JWT_SECRET      string
-	APP_ID_ZALO     string
-	APP_SECRET_ZALO string
+	LOG_MODE          string
+	PORT              string
+	STORAGE_BUCKET    string
+	MAX_FILE_SIZE     int64
+	VIDEO_COMPRESSION bool
+	JWT_SECRET        string
+	APP_ID_ZALO       string
+	APP_SECRET_ZALO   string
 }
 
 var singleInstance *single
@@ -37,6 +38,7 @@ func Get() *single {
 				singleInstance.PORT = os.Getenv("PORT")
 				singleInstance.STORAGE_BUCKET = os.Getenv("STORAGE_BUCKET")
 				singleInstance.MAX_FILE_SIZE, _ = strconv.ParseInt(os.Getenv("MAX_FILE_SIZE"), 10, 64)
+				singleInstance.VIDEO_COMPRESSION, _ = strconv.ParseBool(os.Getenv("VIDEO_COMPRESSION"))
 				singleInstance.JWT_SECRET = os.Getenv("JWT_SECRET")
 				singleInstance.APP_ID_ZALO = os.Getenv("APP_ID_ZALO")
 				singleInstance.APP_SECRET_ZALO = os.Getenv("APP_SECRET_ZALO")
