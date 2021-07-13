@@ -35,17 +35,15 @@ func GetID(ctx iris.Context) {
 	var user models.User
 	dsnap.DataTo(&user)
 
-	var status int
+	var followStatus int
 
 	currentUserID := helpers.GetCurrentUser(ctx).ID
 	if currentUserID == "-1" {
-		status = -1
+		followStatus = -1
+	} else if user.Followers[currentUserID] {
+		followStatus = 1
 	} else {
-		if _, ok := user.Followers[currentUserID]; ok {
-			status = 1
-		} else {
-			status = 0
-		}
+		followStatus = 0
 	}
 
 	ctx.JSON(interfaces.ISuccess{
@@ -59,7 +57,7 @@ func GetID(ctx iris.Context) {
 			Quote:        user.Quote,
 			Following:    len(user.Following),
 			Followers:    len(user.Followers),
-			FollowStatus: status,
+			FollowStatus: followStatus,
 		},
 	})
 }
