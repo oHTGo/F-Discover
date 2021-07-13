@@ -80,7 +80,7 @@ func main() {
 	postRouter := api.Party("post")
 	{
 		postRouter.Post("/", j.Serve, post.Create)
-		postRouter.Get("/{id}", post.GetID)
+		postRouter.Get("/{id}", middlewares.CustomJWTMiddleware(j), post.GetID)
 		postRouter.Put("/{id}", j.Serve, post.Update)
 		postRouter.Post("/{id}/upload-video", j.Serve, post.UploadVideo)
 		postRouter.Delete("/{id}", j.Serve, post.Delete)
@@ -95,10 +95,10 @@ func main() {
 		postRouter.Put("/{id}/comment/{commentID}", j.Serve, post.UpdateComment)
 		postRouter.Delete("/{id}/comment/{commentID}", j.Serve, post.DeleteComment)
 
-		postRouter.Get("/user/{id}", post.GetListOfUser)
-		postRouter.Get("/location/{id}", post.GetListOfLocation)
+		postRouter.Get("/user/{id}", middlewares.CustomJWTMiddleware(j), post.GetListOfUser)
+		postRouter.Get("/location/{id}", middlewares.CustomJWTMiddleware(j), post.GetListOfLocation)
 		postRouter.Get("/following", j.Serve, post.GetListOfFollowing)
-		postRouter.Get("/suggest", post.Suggest)
+		postRouter.Get("/suggest", middlewares.CustomJWTMiddleware(j), post.Suggest)
 	}
 
 	locationRouter := api.Party("location")

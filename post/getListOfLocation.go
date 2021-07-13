@@ -1,6 +1,7 @@
 package post
 
 import (
+	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/location"
@@ -56,12 +57,22 @@ func GetListOfLocation(ctx iris.Context) {
 		dsnap, _ := post.Author.Get(instance.CtxBackground)
 		dsnap.DataTo(&author)
 
+		var likeStatus int
+		if helpers.GetCurrentUser(ctx).ID == "-1" {
+			likeStatus = -1
+		} else if post.Likes[helpers.GetCurrentUser(ctx).ID] {
+			likeStatus = 1
+		} else {
+			likeStatus = 0
+		}
+
 		posts = append(posts, IPost.Info{
 			ID:           post.ID,
 			Content:      post.Content,
 			ThumbnailUrl: post.ThumbnailUrl,
 			VideoUrl:     post.VideoUrl,
 			Likes:        len(post.Likes),
+			LikeStatus:   likeStatus,
 			Comments:     len(post.Comments),
 			Location:     location.GetName(post.Location),
 			CreatedAt:    post.CreatedAt,
