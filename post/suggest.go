@@ -1,6 +1,7 @@
 package post
 
 import (
+	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/location"
@@ -66,14 +67,24 @@ func Suggest(ctx iris.Context) {
 		var author models.User
 		dsnap.DataTo(&author)
 
+		var likeStatus int
+		if helpers.GetCurrentUser(ctx).ID == "-1" {
+			likeStatus = -1
+		} else if post.Likes[helpers.GetCurrentUser(ctx).ID] {
+			likeStatus = 1
+		} else {
+			likeStatus = 0
+		}
+
 		posts = append(posts, IPost.Info{
-			ID:        post.ID,
-			Content:   post.Content,
-			VideoUrl:  post.VideoUrl,
-			Likes:     len(post.Likes),
-			Comments:  len(post.Comments),
-			Location:  location.GetName(post.Location),
-			CreatedAt: post.CreatedAt,
+			ID:         post.ID,
+			Content:    post.Content,
+			VideoUrl:   post.VideoUrl,
+			Likes:      len(post.Likes),
+			LikeStatus: likeStatus,
+			Comments:   len(post.Comments),
+			Location:   location.GetName(post.Location),
+			CreatedAt:  post.CreatedAt,
 			Author: IPost.Author{
 				ID:        author.ID,
 				Name:      author.Name,

@@ -8,6 +8,7 @@ type Info struct {
 	ThumbnailUrl string    `json:"thumbnailUrl"`
 	VideoUrl     string    `json:"videoUrl"`
 	Likes        int       `json:"likes"`
+	LikeStatus   int       `json:"likeStatus"`
 	Comments     int       `json:"comments"`
 	Author       Author    `json:"author"`
 	Location     string    `json:"location"`
@@ -20,6 +21,7 @@ type InfoWithoutAuthor struct {
 	ThumbnailUrl string    `json:"thumbnailUrl"`
 	VideoUrl     string    `json:"videoUrl"`
 	Likes        int       `json:"likes"`
+	LikeStatus   int       `json:"likeStatus"`
 	Comments     int       `json:"comments"`
 	Location     string    `json:"location"`
 	CreatedAt    time.Time `json:"createdAt"`

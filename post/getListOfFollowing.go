@@ -61,12 +61,20 @@ func GetListOfFollowing(ctx iris.Context) {
 			var post models.Post
 			doc.DataTo(&post)
 
+			var likeStatus int
+			if post.Likes[currentUser.ID] {
+				likeStatus = 1
+			} else {
+				likeStatus = 0
+			}
+
 			posts = append(posts, IPost.Info{
 				ID:           post.ID,
 				Content:      post.Content,
 				ThumbnailUrl: post.ThumbnailUrl,
 				VideoUrl:     post.VideoUrl,
 				Likes:        len(post.Likes),
+				LikeStatus:   likeStatus,
 				Comments:     len(post.Comments),
 				Location:     location.GetName(post.Location),
 				CreatedAt:    post.CreatedAt,

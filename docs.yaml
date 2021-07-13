@@ -539,7 +539,6 @@ paths:
               example:
                 message: Success
                 data:
-                  total: 5
                   liked: true
         "401":
           $ref: "#/components/responses/UnauthorizedError"
@@ -892,7 +891,7 @@ paths:
                       $ref: "#/components/schemas/PostWithAuthor"
         "404":
           $ref: "#/components/responses/NotFoundError"
-  /post/following/{id}:
+  /post/following:
     get:
       security:
         - BearerToken: []
@@ -1134,6 +1133,10 @@ components:
         likes:
           type: number
           example: 123
+        likeStatus:
+          type: number
+          description: If unauthorized = -1, if like = 1 else = 0
+          example: 1
         comments:
           type: number
           example: 321
@@ -1163,6 +1166,10 @@ components:
         likes:
           type: number
           example: 123
+        likeStatus:
+          type: number
+          description: If unauthorized = -1, if like = 1 else = 0
+          example: 1
         comments:
           type: number
           example: 321
