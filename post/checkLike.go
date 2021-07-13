@@ -12,6 +12,7 @@ import (
 
 type CheckLikeResponse struct {
 	Liked bool `json:"liked"`
+	Total int  `json:"total"`
 }
 
 func CheckLike(ctx iris.Context) {
@@ -38,6 +39,7 @@ func CheckLike(ctx iris.Context) {
 	ctx.JSON(interfaces.ISuccess{
 		Message: "Success",
 		Data: CheckLikeResponse{
+			Total: len(post.Likes),
 			Liked: liked,
 		},
 	})

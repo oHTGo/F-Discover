@@ -17,6 +17,11 @@ type GetAllCommentQuery struct {
 	Limit int `url:"limit" json:"limit"`
 }
 
+type GetAllCommentResponse struct {
+	Total    int             `json:"total"`
+	Comments []IPost.Comment `json:"comments"`
+}
+
 func GetAllComment(ctx iris.Context) {
 	postsCollection := services.GetInstance().StoreClient.Collection("posts")
 
@@ -80,7 +85,10 @@ func GetAllComment(ctx iris.Context) {
 
 	ctx.JSON(interfaces.ISuccess{
 		Message: "Success",
-		Data:    comments,
+		Data: GetAllCommentResponse{
+			Total:    len(comments),
+			Comments: comments,
+		},
 	})
 }
 
