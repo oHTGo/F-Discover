@@ -539,6 +539,7 @@ paths:
               example:
                 message: Success
                 data:
+                  total: 5
                   liked: true
         "401":
           $ref: "#/components/responses/UnauthorizedError"
