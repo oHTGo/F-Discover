@@ -2,6 +2,7 @@
 .env
 go.sum
 serviceAccountKey.json
+files/*
 uploads/*.*
 *.log
 tmp/
