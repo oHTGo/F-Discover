@@ -52,6 +52,15 @@ func main() {
 		},
 	})
 
+	app.HandleDir("/files", iris.Dir("./files"), iris.DirOptions{
+		Cache: iris.DirCacheOptions{
+			Enable: false,
+		},
+		Attachments: iris.Attachments{
+			Enable: false,
+		},
+	})
+
 	api := app.Party("/api/")
 
 	api.Get("/", func(ctx iris.Context) { ctx.JSON("Hello World") })

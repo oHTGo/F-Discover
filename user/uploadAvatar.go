@@ -1,10 +1,12 @@
 package user
 
 import (
+	"f-discover/env"
 	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/services"
+	"log"
 	"path/filepath"
 	"strings"
 
@@ -44,8 +46,15 @@ func UploadAvatar(ctx iris.Context) {
 		return
 	}
 
-	url, err := helpers.UploadFileStorage(dest, "avatar/"+newNameFile)
-	if err != nil {
+	var url string
+	var errUploaded error
+	if env.Get().LOCAL_UPLOAD {
+		log.Println("Uploading")
+		url, errUploaded = helpers.UploadFileLocal(dest, "avatar/"+newNameFile)
+	} else {
+		url, errUploaded = helpers.UploadFileStorage(dest, "avatar/"+newNameFile)
+	}
+	if errUploaded != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
 			Message: "Upload avatar failed",
 		})

@@ -85,21 +85,27 @@ func UploadVideo(ctx iris.Context) {
 			"-vcodec", "libx264",
 			"-crf", "28",
 			newPathLocalVideo).Output(); err != nil {
-			newPathLocalVideo = pathLocalVideo
+			helpers.RenameFile(pathLocalVideo, newPathLocalVideo)
 		}
 	} else {
-		newPathLocalVideo = pathLocalVideo
+		helpers.RenameFile(pathLocalVideo, newPathLocalVideo)
 	}
 
-	videoUrl, err := helpers.UploadFileStorage(newPathLocalVideo, "posts/"+postID+"/"+newNameVideo)
-	if err != nil {
+	var videoUrl string
+	var errUploaded error
+	if env.Get().LOCAL_UPLOAD {
+		videoUrl, errUploaded = helpers.UploadFileLocal(newPathLocalVideo, "posts/"+postID+"/"+newNameVideo)
+	} else {
+		videoUrl, errUploaded = helpers.UploadFileStorage(newPathLocalVideo, "posts/"+postID+"/"+newNameVideo)
+	}
+	if errUploaded != nil {
 		ctx.StopWithJSON(iris.StatusBadRequest, interfaces.IFail{
-			Message: "Upload video failed",
+			Message: "Upload avatar failed",
 		})
 		return
 	}
 
-	secondToGenerateThumbnail := int(helpers.GetDurationVideo(newPathLocalVideo) / 2)
+	thumbnailVideoSecond := int(helpers.GetDurationVideo(newPathLocalVideo) / 2)
 
 	nameThumbnail := helpers.RandomString(32) + ".jpg"
 	pathLocalThumbnail := filepath.Join("./uploads", nameThumbnail)
@@ -109,9 +115,13 @@ func UploadVideo(ctx iris.Context) {
 		"-i", newPathLocalVideo,
 		"-vframes", "1",
 		"-an",
-		"-ss", strconv.Itoa(secondToGenerateThumbnail),
+		"-ss", strconv.Itoa(thumbnailVideoSecond),
 		pathLocalThumbnail).Output(); err == nil {
-		thumbnailUrl, _ = helpers.UploadFileStorage(pathLocalThumbnail, "posts/"+postID+"/"+nameThumbnail)
+		if env.Get().LOCAL_UPLOAD {
+			thumbnailUrl, _ = helpers.UploadFileLocal(pathLocalThumbnail, "posts/"+postID+"/"+nameThumbnail)
+		} else {
+			thumbnailUrl, _ = helpers.UploadFileStorage(pathLocalThumbnail, "posts/"+postID+"/"+nameThumbnail)
+		}
 	}
 
 	if !isCreated {
@@ -135,11 +145,13 @@ func UploadVideo(ctx iris.Context) {
 		})
 	}
 
-	// Delete old file in storage
+	// Delete old file in local/storage
 	if post.VideoUrl != "" {
+		helpers.DeleteFileLocal(post.VideoUrl)
 		helpers.DeleteFileStorage(post.VideoUrl)
 	}
 	if post.ThumbnailUrl != "" {
+		helpers.DeleteFileLocal(post.ThumbnailUrl)
 		helpers.DeleteFileStorage(post.ThumbnailUrl)
 	}
 
