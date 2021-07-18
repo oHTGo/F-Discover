@@ -7,3 +7,5 @@ services:
             context: .
             target: production
             dockerfile: ./Dockerfile
+        volumes:
+            - ./files/:/files/

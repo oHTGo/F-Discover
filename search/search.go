@@ -1,6 +1,7 @@
 package search
 
 import (
+	"f-discover/env"
 	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/interfaces"
@@ -14,8 +15,9 @@ import (
 )
 
 type Result struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID    string `json:"id"`
+	Image string `json:"image"`
+	Name  string `json:"name"`
 }
 
 type SearchResponse struct {
@@ -62,8 +64,9 @@ func Search(ctx iris.Context) {
 			res = append(res, SearchResponse{
 				Type: "user",
 				Result: Result{
-					ID:   user.ID,
-					Name: user.Name,
+					ID:    user.ID,
+					Image: user.AvatarUrl,
+					Name:  user.Name,
 				},
 			})
 		}
@@ -73,8 +76,9 @@ func Search(ctx iris.Context) {
 		res = append(res, SearchResponse{
 			Type: "location",
 			Result: Result{
-				ID:   location.ID,
-				Name: location.Name,
+				ID:    location.ID,
+				Image: env.Get().URL + "/location/images/" + location.ID + ".jpg",
+				Name:  location.Name,
 			},
 		})
 	}
