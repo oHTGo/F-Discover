@@ -24,7 +24,7 @@ func Init() *logrus.Logger {
 				log.Out = os.Stdout
 
 				if env.Get().LOG_MODE == "file" {
-					file, err := os.OpenFile("logrus.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+					file, err := os.OpenFile("logger/logrus.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 					if err == nil {
 						log.Out = file
 					} else {

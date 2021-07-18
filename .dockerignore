@@ -1,8 +1,17 @@
+# For development
 .devcontainer/
 tmp/
-
-go.sum
 .air.toml
+
+# For app
+files/
+go.sum
+
+#For Docker
 Dockerfile
 .dockerignore
+docker-compose.*.yml
+
+# Logging
+logger/logrus.log
 *.log
