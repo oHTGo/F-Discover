@@ -167,8 +167,10 @@ func verifyTokenZalo(token string) (*User, error) {
 		return nil, errors.New("Code is invalid")
 	}
 
-	if _, ok := mBody["error"]; ok {
-		return nil, errors.New("Token not verified")
+	if errorCode, ok := mBody["error"]; ok {
+		if errorCode.(float64) != 0 {
+			return nil, errors.New("Token not verified")
+		}
 	}
 
 	id := mBody["id"].(string)
