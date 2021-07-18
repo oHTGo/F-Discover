@@ -12,7 +12,7 @@ COPY . .
 RUN go mod tidy
 
 # Builder for production
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o app .
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o server .
 
 CMD go run main.go
 
@@ -22,6 +22,6 @@ RUN apk add ffmpeg
 
 WORKDIR /app
 COPY . .
-COPY --from=development /app/app .
+COPY --from=development /app/server .
 
-CMD ./app
+CMD ./server
