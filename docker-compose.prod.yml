@@ -8,4 +8,5 @@ services:
             target: production
             dockerfile: ./Dockerfile
         volumes:
-            - ./files/:/files/
+            - ./files/:/app/files/
+            - ./logger/:/app/logger/
