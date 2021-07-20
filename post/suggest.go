@@ -50,49 +50,51 @@ func Suggest(ctx iris.Context) {
 	docs, _ := postsCollection.OrderBy("createdAt", firestore.Desc).Documents(instance.CtxBackground).GetAll()
 	var newDocs []*firestore.DocumentSnapshot
 
-	{
-		var randomgen *rand.Rand
-		var time int64 = query.Time
-		randomgen = rand.New(rand.NewSource(time))
-		for _, position := range randomgen.Perm(len(docs) - 1) {
-			newDocs = append(newDocs, docs[position])
-		}
-	}
-
-	for _, doc := range PostHelpers.Paginate(newDocs, (query.Page-1)*query.Limit, query.Limit) {
-		var post models.Post
-		doc.DataTo(&post)
-
-		dsnap, _ := post.Author.Get(instance.CtxBackground)
-		var author models.User
-		dsnap.DataTo(&author)
-
-		var likeStatus int
-		if helpers.GetCurrentUser(ctx).ID == "-1" {
-			likeStatus = -1
-		} else if post.Likes[helpers.GetCurrentUser(ctx).ID] {
-			likeStatus = 1
-		} else {
-			likeStatus = 0
+	if len(docs) > 0 {
+		{
+			var randomgen *rand.Rand
+			var time int64 = query.Time
+			randomgen = rand.New(rand.NewSource(time))
+			for _, position := range randomgen.Perm(len(docs) - 1) {
+				newDocs = append(newDocs, docs[position])
+			}
 		}
 
-		posts = append(posts, IPost.Info{
-			ID:           post.ID,
-			Content:      post.Content,
-			ThumbnailUrl: post.ThumbnailUrl,
-			VideoUrl:     post.VideoUrl,
-			Likes:        len(post.Likes),
-			LikeStatus:   likeStatus,
-			Comments:     len(post.Comments),
-			Location:     location.GetName(post.Location),
-			CreatedAt:    post.CreatedAt,
-			Author: IPost.Author{
-				ID:        author.ID,
-				Name:      author.Name,
-				AvatarUrl: author.AvatarUrl,
-				Job:       author.Job,
-			},
-		})
+		for _, doc := range PostHelpers.Paginate(newDocs, (query.Page-1)*query.Limit, query.Limit) {
+			var post models.Post
+			doc.DataTo(&post)
+
+			dsnap, _ := post.Author.Get(instance.CtxBackground)
+			var author models.User
+			dsnap.DataTo(&author)
+
+			var likeStatus int
+			if helpers.GetCurrentUser(ctx).ID == "-1" {
+				likeStatus = -1
+			} else if post.Likes[helpers.GetCurrentUser(ctx).ID] {
+				likeStatus = 1
+			} else {
+				likeStatus = 0
+			}
+
+			posts = append(posts, IPost.Info{
+				ID:           post.ID,
+				Content:      post.Content,
+				ThumbnailUrl: post.ThumbnailUrl,
+				VideoUrl:     post.VideoUrl,
+				Likes:        len(post.Likes),
+				LikeStatus:   likeStatus,
+				Comments:     len(post.Comments),
+				Location:     location.GetName(post.Location),
+				CreatedAt:    post.CreatedAt,
+				Author: IPost.Author{
+					ID:        author.ID,
+					Name:      author.Name,
+					AvatarUrl: author.AvatarUrl,
+					Job:       author.Job,
+				},
+			})
+		}
 	}
 
 	ctx.JSON(interfaces.ISuccess{
