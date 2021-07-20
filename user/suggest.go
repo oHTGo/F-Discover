@@ -1,6 +1,7 @@
 package user
 
 import (
+	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/models"
@@ -12,14 +13,15 @@ import (
 )
 
 type SuggestResponse struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	CoverUrl  string `json:"coverUrl"`
-	AvatarUrl string `json:"avatarUrl"`
-	Job       string `json:"job"`
-	Quote     string `json:"quote"`
-	Following int    `json:"following"`
-	Followers int    `json:"followers"`
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	CoverUrl     string `json:"coverUrl"`
+	AvatarUrl    string `json:"avatarUrl"`
+	Job          string `json:"job"`
+	Quote        string `json:"quote"`
+	FollowStatus int    `json:"followStatus"`
+	Following    int    `json:"following"`
+	Followers    int    `json:"followers"`
 }
 
 type SuggestQuery struct {
@@ -51,30 +53,52 @@ func Suggest(ctx iris.Context) {
 		for _, user := range users {
 			var userData models.User
 			user.DataTo(&userData)
+
+			var followStatus int
+			if helpers.GetCurrentUser(ctx).ID == "-1" || helpers.GetCurrentUser(ctx).ID == userData.ID {
+				followStatus = -1
+			} else if userData.Followers[helpers.GetCurrentUser(ctx).ID] {
+				followStatus = 1
+			} else {
+				followStatus = 0
+			}
+
 			suggestedUsers = append(suggestedUsers, SuggestResponse{
-				ID:        userData.ID,
-				Name:      userData.Name,
-				CoverUrl:  userData.CoverUrl,
-				AvatarUrl: userData.AvatarUrl,
-				Job:       userData.Job,
-				Quote:     userData.Quote,
-				Following: len(userData.Following),
-				Followers: len(userData.Followers),
+				ID:           userData.ID,
+				Name:         userData.Name,
+				CoverUrl:     userData.CoverUrl,
+				AvatarUrl:    userData.AvatarUrl,
+				Job:          userData.Job,
+				Quote:        userData.Quote,
+				FollowStatus: followStatus,
+				Following:    len(userData.Following),
+				Followers:    len(userData.Followers),
 			})
 		}
 	} else {
 		for _, position := range rand.Perm(len(users) - 1)[:query.Limit] {
 			var userData models.User
 			users[position].DataTo(&userData)
+
+			var followStatus int
+			if helpers.GetCurrentUser(ctx).ID == "-1" || helpers.GetCurrentUser(ctx).ID == userData.ID {
+				followStatus = -1
+			} else if userData.Followers[helpers.GetCurrentUser(ctx).ID] {
+				followStatus = 1
+			} else {
+				followStatus = 0
+			}
+
 			suggestedUsers = append(suggestedUsers, SuggestResponse{
-				ID:        userData.ID,
-				Name:      userData.Name,
-				CoverUrl:  userData.CoverUrl,
-				AvatarUrl: userData.AvatarUrl,
-				Job:       userData.Job,
-				Quote:     userData.Quote,
-				Following: len(userData.Following),
-				Followers: len(userData.Followers),
+				ID:           userData.ID,
+				Name:         userData.Name,
+				CoverUrl:     userData.CoverUrl,
+				AvatarUrl:    userData.AvatarUrl,
+				Job:          userData.Job,
+				Quote:        userData.Quote,
+				FollowStatus: followStatus,
+				Following:    len(userData.Following),
+				Followers:    len(userData.Followers),
 			})
 		}
 	}

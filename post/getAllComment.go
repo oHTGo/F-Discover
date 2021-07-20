@@ -1,6 +1,7 @@
 package post
 
 import (
+	"f-discover/helpers"
 	"f-discover/instance"
 	"f-discover/interfaces"
 	"f-discover/models"
@@ -70,15 +71,25 @@ func GetAllComment(ctx iris.Context) {
 		var author models.User
 		dsnap.DataTo(&author)
 
+		var followStatus int
+		if helpers.GetCurrentUser(ctx).ID == "-1" || helpers.GetCurrentUser(ctx).ID == author.ID {
+			followStatus = -1
+		} else if author.Followers[helpers.GetCurrentUser(ctx).ID] {
+			followStatus = 1
+		} else {
+			followStatus = 0
+		}
+
 		comments = append(comments, IPost.Comment{
 			ID:        comment.ID,
 			Content:   comment.Content,
 			CreatedAt: comment.CreatedAt,
 			Author: IPost.Author{
-				ID:        author.ID,
-				Name:      author.Name,
-				AvatarUrl: author.AvatarUrl,
-				Job:       author.Job,
+				ID:           author.ID,
+				Name:         author.Name,
+				AvatarUrl:    author.AvatarUrl,
+				FollowStatus: followStatus,
+				Job:          author.Job,
 			},
 		})
 	}
