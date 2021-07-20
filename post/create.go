@@ -72,10 +72,11 @@ func Create(ctx iris.Context) {
 			Location:  location.GetName(post.Location),
 			CreatedAt: post.CreatedAt,
 			Author: IPost.Author{
-				ID:        user.ID,
-				Name:      user.Name,
-				AvatarUrl: user.AvatarUrl,
-				Job:       user.Job,
+				ID:           user.ID,
+				Name:         user.Name,
+				AvatarUrl:    user.AvatarUrl,
+				FollowStatus: -1,
+				Job:          user.Job,
 			},
 		},
 	})

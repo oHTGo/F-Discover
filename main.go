@@ -92,7 +92,7 @@ func main() {
 		userRouter.Post("/{id}/follow", j.Serve, user.Follow)
 		userRouter.Delete("/{id}/follow", j.Serve, user.Unfollow)
 
-		userRouter.Get("/suggest", user.Suggest)
+		userRouter.Get("/suggest", middlewares.CustomJWTMiddleware(j), user.Suggest)
 	}
 
 	postRouter := api.Party("post")

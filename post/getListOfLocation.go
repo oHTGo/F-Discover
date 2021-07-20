@@ -66,6 +66,15 @@ func GetListOfLocation(ctx iris.Context) {
 			likeStatus = 0
 		}
 
+		var followStatus int
+		if helpers.GetCurrentUser(ctx).ID == "-1" || helpers.GetCurrentUser(ctx).ID == author.ID {
+			followStatus = -1
+		} else if author.Followers[helpers.GetCurrentUser(ctx).ID] {
+			followStatus = 1
+		} else {
+			followStatus = 0
+		}
+
 		posts = append(posts, IPost.Info{
 			ID:           post.ID,
 			Content:      post.Content,
@@ -77,10 +86,11 @@ func GetListOfLocation(ctx iris.Context) {
 			Location:     location.GetName(post.Location),
 			CreatedAt:    post.CreatedAt,
 			Author: IPost.Author{
-				ID:        author.ID,
-				Name:      author.Name,
-				AvatarUrl: author.AvatarUrl,
-				Job:       author.Job,
+				ID:           author.ID,
+				Name:         author.Name,
+				AvatarUrl:    author.AvatarUrl,
+				FollowStatus: followStatus,
+				Job:          author.Job,
 			},
 		})
 	}
