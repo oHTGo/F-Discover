@@ -71,15 +71,6 @@ func GetAllComment(ctx iris.Context) {
 		var author models.User
 		dsnap.DataTo(&author)
 
-		var followStatus int
-		if helpers.GetCurrentUser(ctx).ID == "-1" || helpers.GetCurrentUser(ctx).ID == author.ID {
-			followStatus = -1
-		} else if author.Followers[helpers.GetCurrentUser(ctx).ID] {
-			followStatus = 1
-		} else {
-			followStatus = 0
-		}
-
 		comments = append(comments, IPost.Comment{
 			ID:        comment.ID,
 			Content:   comment.Content,
@@ -88,7 +79,7 @@ func GetAllComment(ctx iris.Context) {
 				ID:           author.ID,
 				Name:         author.Name,
 				AvatarUrl:    author.AvatarUrl,
-				FollowStatus: followStatus,
+				FollowStatus: helpers.GetFollowStatus(ctx, author),
 				Job:          author.Job,
 			},
 		})

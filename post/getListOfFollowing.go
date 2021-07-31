@@ -61,29 +61,13 @@ func GetListOfFollowing(ctx iris.Context) {
 			var post models.Post
 			doc.DataTo(&post)
 
-			var likeStatus int
-			if post.Likes[currentUser.ID] {
-				likeStatus = 1
-			} else {
-				likeStatus = 0
-			}
-
-			var followStatus int
-			if helpers.GetCurrentUser(ctx).ID == "-1" || helpers.GetCurrentUser(ctx).ID == author.ID {
-				followStatus = -1
-			} else if author.Followers[helpers.GetCurrentUser(ctx).ID] {
-				followStatus = 1
-			} else {
-				followStatus = 0
-			}
-
 			posts = append(posts, IPost.Info{
 				ID:           post.ID,
 				Content:      post.Content,
 				ThumbnailUrl: post.ThumbnailUrl,
 				VideoUrl:     post.VideoUrl,
 				Likes:        len(post.Likes),
-				LikeStatus:   likeStatus,
+				LikeStatus:   helpers.GetLikeStatus(ctx, post),
 				Comments:     len(post.Comments),
 				Location:     location.GetName(post.Location),
 				CreatedAt:    post.CreatedAt,
@@ -91,7 +75,7 @@ func GetListOfFollowing(ctx iris.Context) {
 					ID:           author.ID,
 					Name:         author.Name,
 					AvatarUrl:    author.AvatarUrl,
-					FollowStatus: followStatus,
+					FollowStatus: helpers.GetFollowStatus(ctx, author),
 					Job:          author.Job,
 				},
 			})
