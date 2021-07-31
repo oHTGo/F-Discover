@@ -54,15 +54,6 @@ func Suggest(ctx iris.Context) {
 			var userData models.User
 			user.DataTo(&userData)
 
-			var followStatus int
-			if helpers.GetCurrentUser(ctx).ID == "-1" || helpers.GetCurrentUser(ctx).ID == userData.ID {
-				followStatus = -1
-			} else if userData.Followers[helpers.GetCurrentUser(ctx).ID] {
-				followStatus = 1
-			} else {
-				followStatus = 0
-			}
-
 			suggestedUsers = append(suggestedUsers, SuggestResponse{
 				ID:           userData.ID,
 				Name:         userData.Name,
@@ -70,7 +61,7 @@ func Suggest(ctx iris.Context) {
 				AvatarUrl:    userData.AvatarUrl,
 				Job:          userData.Job,
 				Quote:        userData.Quote,
-				FollowStatus: followStatus,
+				FollowStatus: helpers.GetFollowStatus(ctx, userData),
 				Following:    len(userData.Following),
 				Followers:    len(userData.Followers),
 			})
@@ -80,15 +71,6 @@ func Suggest(ctx iris.Context) {
 			var userData models.User
 			users[position].DataTo(&userData)
 
-			var followStatus int
-			if helpers.GetCurrentUser(ctx).ID == "-1" || helpers.GetCurrentUser(ctx).ID == userData.ID {
-				followStatus = -1
-			} else if userData.Followers[helpers.GetCurrentUser(ctx).ID] {
-				followStatus = 1
-			} else {
-				followStatus = 0
-			}
-
 			suggestedUsers = append(suggestedUsers, SuggestResponse{
 				ID:           userData.ID,
 				Name:         userData.Name,
@@ -96,7 +78,7 @@ func Suggest(ctx iris.Context) {
 				AvatarUrl:    userData.AvatarUrl,
 				Job:          userData.Job,
 				Quote:        userData.Quote,
-				FollowStatus: followStatus,
+				FollowStatus: helpers.GetFollowStatus(ctx, userData),
 				Following:    len(userData.Following),
 				Followers:    len(userData.Followers),
 			})
